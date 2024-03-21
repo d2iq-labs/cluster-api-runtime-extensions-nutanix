@@ -28,7 +28,7 @@ spec:
             strategy: HelmAddon
           cpi: {}
           csi:
-            defaultStorageConfig:
+            defaultStorage:
               providerName: aws-ebs
               storageClassConfigName: aws-ebs-sc
             providers:
