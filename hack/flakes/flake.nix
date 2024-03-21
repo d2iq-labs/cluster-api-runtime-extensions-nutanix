@@ -34,11 +34,11 @@
               owner = "kubernetes-sigs";
               repo = "controller-runtime";
               rev = "v${version}";
-              hash = "sha256-X4YM4A63UxD650S3lxbxRtZaHOyF7LY6d5eVJe91+5c=";
+              hash = "sha256-JrAyxiFD4B819/0pCyMeo1k5tWezyzmFWQvRp1B2sHo=";
             } + "/tools/setup-envtest";
             doCheck = false;
             subPackages = [ "." ];
-            vendorHash = "sha256-ISVGxhFQh4e0eag9Sw0Zj4u1cG0tudZLhJcGdH5tDo4=";
+            vendorHash = "sha256-Xr5b/CRz/DMmoc4bvrEyAZcNufLIZOY5OGQ6yw4/W9k=";
             ldflags = [ "-s" "-w" ];
           };
 
