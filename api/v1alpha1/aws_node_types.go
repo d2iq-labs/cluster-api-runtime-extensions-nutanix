@@ -49,14 +49,18 @@ func (AdditionalSecurityGroup) VariableSchema() clusterv1.VariableSchema {
 	}
 }
 
-func (AWSNodeSpec) VariableSchema() clusterv1.VariableSchema {
+func (s AWSNodeSpec) VariableSchema() clusterv1.VariableSchema {
+	defaultInstanceType := InstanceType("")
+	if s.InstanceType != nil {
+		defaultInstanceType = *s.InstanceType
+	}
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
 			Description: "AWS Node configuration",
 			Type:        "object",
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"iamInstanceProfile":       IAMInstanceProfile("").VariableSchema().OpenAPIV3Schema,
-				"instanceType":             InstanceType("").VariableSchema().OpenAPIV3Schema,
+				"instanceType":             defaultInstanceType.VariableSchema().OpenAPIV3Schema,
 				"ami":                      AMISpec{}.VariableSchema().OpenAPIV3Schema,
 				"additionalSecurityGroups": AdditionalSecurityGroup{}.VariableSchema().OpenAPIV3Schema,
 			},

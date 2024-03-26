@@ -6,6 +6,7 @@ package clusterconfig
 import (
 	"context"
 
+	"k8s.io/utils/ptr"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 
@@ -43,7 +44,14 @@ func (h *awsClusterConfigVariableHandler) DiscoverVariables(
 	resp.Variables = append(resp.Variables, clusterv1.ClusterClassVariable{
 		Name:     clusterconfig.MetaVariableName,
 		Required: true,
-		Schema:   v1alpha1.ClusterConfigSpec{AWS: &v1alpha1.AWSSpec{}}.VariableSchema(),
+		Schema: v1alpha1.AWSClusterConfigSpec{
+			AWS: v1alpha1.AWSSpec{},
+			ControlPlane: &v1alpha1.NodeConfigSpec{
+				AWS: &v1alpha1.AWSNodeSpec{
+					InstanceType: ptr.To(v1alpha1.InstanceType("m5.large")),
+				},
+			},
+		}.VariableSchema(),
 	})
 	resp.SetStatus(runtimehooksv1.ResponseStatusSuccess)
 }

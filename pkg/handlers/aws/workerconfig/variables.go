@@ -6,6 +6,7 @@ package workerconfig
 import (
 	"context"
 
+	"k8s.io/utils/ptr"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 
@@ -43,7 +44,9 @@ func (h *awsWorkerConfigVariableHandler) DiscoverVariables(
 	resp.Variables = append(resp.Variables, clusterv1.ClusterClassVariable{
 		Name:     workerconfig.MetaVariableName,
 		Required: false,
-		Schema:   v1alpha1.NodeConfigSpec{AWS: &v1alpha1.AWSNodeSpec{}}.VariableSchema(),
+		Schema: v1alpha1.NodeConfigSpec{AWS: &v1alpha1.AWSNodeSpec{
+			InstanceType: ptr.To(v1alpha1.InstanceType("m5.2xlarge")),
+		}}.VariableSchema(),
 	})
 	resp.SetStatus(runtimehooksv1.ResponseStatusSuccess)
 }
