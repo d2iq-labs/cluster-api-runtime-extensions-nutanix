@@ -5,6 +5,7 @@ package v1alpha1
 
 import (
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/utils/ptr"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
@@ -36,7 +37,7 @@ type Addons struct {
 	CPI *CPI `json:"cpi,omitempty"`
 
 	// +optional
-	CSIProviders *CSIProviders `json:"csi,omitempty"`
+	CSI *CSI `json:"csi,omitempty"`
 }
 
 func (Addons) VariableSchema() clusterv1.VariableSchema {
@@ -48,7 +49,7 @@ func (Addons) VariableSchema() clusterv1.VariableSchema {
 				"cni":               CNI{}.VariableSchema().OpenAPIV3Schema,
 				"nfd":               NFD{}.VariableSchema().OpenAPIV3Schema,
 				"clusterAutoscaler": ClusterAutoscaler{}.VariableSchema().OpenAPIV3Schema,
-				"csi":               CSIProviders{}.VariableSchema().OpenAPIV3Schema,
+				"csi":               CSI{}.VariableSchema().OpenAPIV3Schema,
 				"cpi":               CPI{}.VariableSchema().OpenAPIV3Schema,
 			},
 		},
@@ -147,7 +148,7 @@ type DefaultStorage struct {
 	StorageClassConfigName string `json:"storageClassConfigName"`
 }
 
-type CSIProviders struct {
+type CSI struct {
 	// +optional
 	Providers []CSIProvider `json:"providers,omitempty"`
 	// +optional
@@ -191,24 +192,34 @@ func (StorageClassConfig) VariableSchema() clusterv1.VariableSchema {
 	}
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Type: "object",
+			Type:     "object",
+			Required: []string{"name", "parameters", "reclaimPolicy", "volumeBindingMode"},
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"name": {
 					Type:        "string",
 					Description: "Name of storage class config.",
+					MinLength:   ptr.To(int64(1)),
 				},
 				"parameters": {
-					Type:                   "object",
-					Description:            "Parameters passed into the storage class object.",
-					XPreserveUnknownFields: true,
+					Type:        "object",
+					Description: "Parameters passed into the storage class object.",
+					AdditionalProperties: &clusterv1.JSONSchemaProps{
+						Type: "string",
+					},
+					Default: variables.MustMarshal(map[string]string{
+						"csi.storage.k8s.io/fstype": "ext4",
+						"type":                      "gp3",
+					}),
 				},
 				"reclaimPolicy": {
-					Type: "string",
-					Enum: variables.MustMarshalValuesToEnumJSON(supportedReclaimPolicies...),
+					Type:    "string",
+					Enum:    variables.MustMarshalValuesToEnumJSON(supportedReclaimPolicies...),
+					Default: variables.MustMarshal(VolumeReclaimDelete),
 				},
 				"volumeBindingMode": {
-					Type: "string",
-					Enum: variables.MustMarshalValuesToEnumJSON(supportedBindingModes...),
+					Type:    "string",
+					Enum:    variables.MustMarshalValuesToEnumJSON(supportedBindingModes...),
+					Default: variables.MustMarshal(VolumeBindingImmediate),
 				},
 			},
 		},
@@ -219,7 +230,8 @@ func (CSIProvider) VariableSchema() clusterv1.VariableSchema {
 	supportedCSIProviders := []string{CSIProviderAWSEBS, CSIProviderNutanix}
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Type: "object",
+			Type:     "object",
+			Required: []string{"name", "strategy"},
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"name": {
 					Description: "Name of the CSI Provider",
@@ -248,11 +260,8 @@ func (CSIProvider) VariableSchema() clusterv1.VariableSchema {
 					},
 				},
 				"storageClassConfig": {
-					Type: "array",
-					Items: &clusterv1.JSONSchemaProps{
-						Type:       "object",
-						Properties: StorageClassConfig{}.VariableSchema().OpenAPIV3Schema.Properties,
-					},
+					Type:  "array",
+					Items: ptr.To(StorageClassConfig{}.VariableSchema().OpenAPIV3Schema),
 				},
 			},
 		},
@@ -281,17 +290,14 @@ func (DefaultStorage) VariableSchema() clusterv1.VariableSchema {
 	}
 }
 
-func (CSIProviders) VariableSchema() clusterv1.VariableSchema {
+func (CSI) VariableSchema() clusterv1.VariableSchema {
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
 			Type: "object",
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"providers": {
-					Type: "array",
-					Items: &clusterv1.JSONSchemaProps{
-						Type:       "object",
-						Properties: CSIProvider{}.VariableSchema().OpenAPIV3Schema.Properties,
-					},
+					Type:  "array",
+					Items: ptr.To(CSIProvider{}.VariableSchema().OpenAPIV3Schema),
 				},
 				"defaultStorage": DefaultStorage{}.VariableSchema().OpenAPIV3Schema,
 			},

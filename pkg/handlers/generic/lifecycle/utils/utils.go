@@ -6,7 +6,6 @@ package utils
 import (
 	"context"
 	"fmt"
-	"maps"
 
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
@@ -30,13 +29,9 @@ const (
 )
 
 var (
-	defualtStorageClassKey = "storageclass.kubernetes.io/is-default-class"
+	defaultStorageClassKey = "storageclass.kubernetes.io/is-default-class"
 	defaultStorageClassMap = map[string]string{
-		defualtStorageClassKey: "true",
-	}
-	defaultParams = map[string]string{
-		"csi.storage.k8s.io/fstype": "ext4",
-		"type":                      "gp3",
+		defaultStorageClassKey: "true",
 	}
 )
 
@@ -159,10 +154,6 @@ func CreateStorageClass(
 	case v1alpha1.VolumeReclaimRetain:
 		reclaimPolicy = ptr.To(corev1.PersistentVolumeReclaimRetain)
 	}
-	params := defaultParams
-	if storageConfig.Parameters != nil {
-		params = maps.Clone(storageConfig.Parameters)
-	}
 	sc := storagev1.StorageClass{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       kindStorageClass,
@@ -173,7 +164,7 @@ func CreateStorageClass(
 			Namespace: defaultsNamespace,
 		},
 		Provisioner:       string(provisionerName),
-		Parameters:        params,
+		Parameters:        storageConfig.Parameters,
 		VolumeBindingMode: volumeBindingMode,
 		ReclaimPolicy:     reclaimPolicy,
 	}
