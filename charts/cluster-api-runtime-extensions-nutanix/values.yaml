@@ -49,6 +49,15 @@ hooks:
         defaultValueTemplateConfigMap:
           create: true
           name: default-nutanix-csi-helm-values-template
+  ccm:
+    nutanix:
+      crsStrategy:
+        defaultInstallationConfigMap:
+          name: nutanix-ccm
+      helmAddonStrategy:
+        defaultValueTemplateConfigMap:
+          create: true
+          name: default-nutanix-ccm-helm-values-template
   nfd:
     crsStrategy:
       defaultInstallationConfigMap:
