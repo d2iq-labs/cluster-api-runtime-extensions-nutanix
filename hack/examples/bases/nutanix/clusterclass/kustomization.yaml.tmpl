@@ -29,3 +29,24 @@ patches:
       path: "/spec/patches"
     - op: "remove"
       path: "/spec/variables"
+# TODO: Temp added patches for NutanixClusterTemplate
+- target:
+    kind: NutanixClusterTemplate
+  patch: |-
+    - op: "add"
+      path: "/spec/template/spec/controlPlaneEndpoint"
+      value:
+        host: ""
+        port: 6443
+    - op: "add"
+      path: "/spec/template/spec/prismCentral"
+      value:
+        address: ''
+        port: 9440
+        insecure: true
+        credentialRef:
+          name: 'replace-me-creds'
+          kind: Secret
+        additionalTrustBundle:
+          name: ''
+          kind: ConfigMap

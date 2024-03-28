@@ -252,7 +252,20 @@ metadata:
 spec:
   template:
     spec:
+      controlPlaneEndpoint:
+        host: ""
+        port: 6443
       failureDomains: []
+      prismCentral:
+        additionalTrustBundle:
+          kind: ConfigMap
+          name: ""
+        address: ""
+        credentialRef:
+          kind: Secret
+          name: replace-me-creds
+        insecure: true
+        port: 9440
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: NutanixMachineTemplate
