@@ -15,7 +15,7 @@ type NutanixSpec struct {
 	ControlPlaneEndpoint clusterv1.APIEndpoint `json:"controlPlaneEndpoint"`
 
 	// Nutanix Prism Central endpoint configuration.
-	PrismCentralEndpoint NutanixPrismCentralEndpointSpec `json:"prismCentral"`
+	PrismCentralEndpoint NutanixPrismCentralEndpointSpec `json:"prismCentralEndpoint"`
 }
 
 func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {

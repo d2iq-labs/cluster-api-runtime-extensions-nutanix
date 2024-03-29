@@ -6,7 +6,9 @@ package controlplaneendpoint
 import (
 	"testing"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/v1alpha1"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest"
@@ -25,9 +27,14 @@ func TestVariableValidation(t *testing.T) {
 			Name: "valid host or port",
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
-					ControlPlaneEndpoint: &v1alpha1.NutanixControlPlaneEndpointSpec{
+					ControlPlaneEndpoint: clusterv1.APIEndpoint{
 						Host: "10.20.100.10",
 						Port: 6443,
+					},
+					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
+						Credentials: corev1.LocalObjectReference{
+							Name: "credentials",
+						},
 					},
 				},
 			},

@@ -61,7 +61,7 @@ func (h *nutanixMachineDetailsControlPlanePatchHandler) Mutate(
 		"holderRef", holderRef,
 	)
 
-	nutanixMachineDetailsVar, found, err := variables.Get[v1alpha1.NutanixMachineDetails](
+	nutanixNode, found, err := variables.Get[v1alpha1.NutanixNodeSpec](
 		vars,
 		h.variableName,
 		h.variableFieldPath...,
@@ -80,7 +80,7 @@ func (h *nutanixMachineDetailsControlPlanePatchHandler) Mutate(
 		"variableFieldPath",
 		h.variableFieldPath,
 		"variableValue",
-		nutanixMachineDetailsVar,
+		nutanixNode,
 	)
 
 	return patches.MutateIfApplicable(
@@ -99,44 +99,44 @@ func (h *nutanixMachineDetailsControlPlanePatchHandler) Mutate(
 			).Info("setting Nutanix machine details in control plane NutanixMachineTemplate spec")
 
 			obj.Spec.Template.Spec.BootType = capxv1.NutanixBootType(
-				nutanixMachineDetailsVar.BootType,
+				nutanixNode.BootType,
 			)
 			obj.Spec.Template.Spec.Cluster = capxv1.NutanixResourceIdentifier{
-				Type: capxv1.NutanixIdentifierType(nutanixMachineDetailsVar.Cluster.Type),
+				Type: nutanixNode.Cluster.Type,
 			}
-			if nutanixMachineDetailsVar.Cluster.Type == v1alpha1.NutanixIdentifierName {
-				obj.Spec.Template.Spec.Cluster.Name = nutanixMachineDetailsVar.Cluster.Name
+			if nutanixNode.Cluster.Type == capxv1.NutanixIdentifierName {
+				obj.Spec.Template.Spec.Cluster.Name = nutanixNode.Cluster.Name
 			} else {
-				obj.Spec.Template.Spec.Cluster.UUID = nutanixMachineDetailsVar.Cluster.UUID
+				obj.Spec.Template.Spec.Cluster.UUID = nutanixNode.Cluster.UUID
 			}
 
 			obj.Spec.Template.Spec.Image = capxv1.NutanixResourceIdentifier{
-				Type: capxv1.NutanixIdentifierType(nutanixMachineDetailsVar.Image.Type),
+				Type: nutanixNode.Image.Type,
 			}
-			if nutanixMachineDetailsVar.Image.Type == v1alpha1.NutanixIdentifierName {
-				obj.Spec.Template.Spec.Image.Name = nutanixMachineDetailsVar.Image.Name
+			if nutanixNode.Image.Type == capxv1.NutanixIdentifierName {
+				obj.Spec.Template.Spec.Image.Name = nutanixNode.Image.Name
 			} else {
-				obj.Spec.Template.Spec.Image.UUID = nutanixMachineDetailsVar.Image.UUID
+				obj.Spec.Template.Spec.Image.UUID = nutanixNode.Image.UUID
 			}
 
-			obj.Spec.Template.Spec.VCPUSockets = nutanixMachineDetailsVar.VCPUSockets
-			obj.Spec.Template.Spec.VCPUsPerSocket = nutanixMachineDetailsVar.VCPUsPerSocket
+			obj.Spec.Template.Spec.VCPUSockets = nutanixNode.VCPUSockets
+			obj.Spec.Template.Spec.VCPUsPerSocket = nutanixNode.VCPUsPerSocket
 			obj.Spec.Template.Spec.MemorySize = resource.MustParse(
-				nutanixMachineDetailsVar.MemorySize,
+				nutanixNode.MemorySize,
 			)
 			obj.Spec.Template.Spec.SystemDiskSize = resource.MustParse(
-				nutanixMachineDetailsVar.SystemDiskSize,
+				nutanixNode.SystemDiskSize,
 			)
 
 			subnets := make(
 				[]capxv1.NutanixResourceIdentifier,
-				len(nutanixMachineDetailsVar.Subnets),
+				len(nutanixNode.Subnets),
 			)
-			for _, subnetCRE := range nutanixMachineDetailsVar.Subnets {
+			for _, subnetCRE := range nutanixNode.Subnets {
 				subnet := capxv1.NutanixResourceIdentifier{
-					Type: capxv1.NutanixIdentifierType(subnetCRE.Type),
+					Type: subnetCRE.Type,
 				}
-				if subnetCRE.Type == v1alpha1.NutanixIdentifierName {
+				if subnetCRE.Type == capxv1.NutanixIdentifierName {
 					subnet.Name = subnetCRE.Name
 				} else {
 					subnet.UUID = subnetCRE.UUID
@@ -146,9 +146,9 @@ func (h *nutanixMachineDetailsControlPlanePatchHandler) Mutate(
 
 			obj.Spec.Template.Spec.Subnets = subnets
 			// TODO:deepakm-ntnx uncomment this once we are ready
-			// obj.Spec.Template.Spec.Project = nutanixMachineDetailsVar.Project
-			// obj.Spec.Template.Spec.AdditionalCategories = nutanixMachineDetailsVar.AdditionalCategories
-			// obj.Spec.Template.Spec.GPUs = nutanixMachineDetailsVar.GPUs
+			// obj.Spec.Template.Spec.Project = nutanixNode.Project
+			// obj.Spec.Template.Spec.AdditionalCategories = nutanixNode.AdditionalCategories
+			// obj.Spec.Template.Spec.GPUs = nutanixNode.GPUs
 			return nil
 		},
 	)

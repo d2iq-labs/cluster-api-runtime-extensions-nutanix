@@ -55,7 +55,7 @@ func (h *nutanixMachineDetailsWorkerPatchHandler) Mutate(
 		"holderRef", holderRef,
 	)
 
-	nutanixMachineDetailsVar, found, err := variables.Get[v1alpha1.NutanixMachineDetails](
+	nutanixMachineDetailsVar, found, err := variables.Get[v1alpha1.NutanixNodeSpec](
 		vars,
 		h.variableName,
 		h.variableFieldPath...,
@@ -96,18 +96,18 @@ func (h *nutanixMachineDetailsWorkerPatchHandler) Mutate(
 				nutanixMachineDetailsVar.BootType,
 			)
 			obj.Spec.Template.Spec.Cluster = capxv1.NutanixResourceIdentifier{
-				Type: capxv1.NutanixIdentifierType(nutanixMachineDetailsVar.Cluster.Type),
+				Type: nutanixMachineDetailsVar.Cluster.Type,
 			}
-			if nutanixMachineDetailsVar.Cluster.Type == v1alpha1.NutanixIdentifierName {
+			if nutanixMachineDetailsVar.Cluster.Type == capxv1.NutanixIdentifierName {
 				obj.Spec.Template.Spec.Cluster.Name = nutanixMachineDetailsVar.Cluster.Name
 			} else {
 				obj.Spec.Template.Spec.Cluster.UUID = nutanixMachineDetailsVar.Cluster.UUID
 			}
 
 			obj.Spec.Template.Spec.Image = capxv1.NutanixResourceIdentifier{
-				Type: capxv1.NutanixIdentifierType(nutanixMachineDetailsVar.Image.Type),
+				Type: nutanixMachineDetailsVar.Image.Type,
 			}
-			if nutanixMachineDetailsVar.Image.Type == v1alpha1.NutanixIdentifierName {
+			if nutanixMachineDetailsVar.Image.Type == capxv1.NutanixIdentifierName {
 				obj.Spec.Template.Spec.Image.Name = nutanixMachineDetailsVar.Image.Name
 			} else {
 				obj.Spec.Template.Spec.Image.UUID = nutanixMachineDetailsVar.Image.UUID
@@ -128,9 +128,9 @@ func (h *nutanixMachineDetailsWorkerPatchHandler) Mutate(
 			)
 			for _, subnetCRE := range nutanixMachineDetailsVar.Subnets {
 				subnet := capxv1.NutanixResourceIdentifier{
-					Type: capxv1.NutanixIdentifierType(subnetCRE.Type),
+					Type: subnetCRE.Type,
 				}
-				if subnetCRE.Type == v1alpha1.NutanixIdentifierName {
+				if subnetCRE.Type == capxv1.NutanixIdentifierName {
 					subnet.Name = subnetCRE.Name
 				} else {
 					subnet.UUID = subnetCRE.UUID

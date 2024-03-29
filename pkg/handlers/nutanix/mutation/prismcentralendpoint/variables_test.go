@@ -6,6 +6,7 @@ package prismcentralendpoint
 import (
 	"testing"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/v1alpha1"
@@ -25,11 +26,13 @@ func TestVariableValidation(t *testing.T) {
 			Name: "valid PC host or port",
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
-					PrismCentralEndpoint: &v1alpha1.NutanixPrismCentralEndpointSpec{
-						Host:                  "prism-central.nutanix.com",
-						Port:                  9440,
-						Insecure:              false,
-						AdditionalTrustBundle: "",
+					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
+						Address:  "prism-central.nutanix.com",
+						Port:     9440,
+						Insecure: false,
+						Credentials: corev1.LocalObjectReference{
+							Name: "credentials",
+						},
 					},
 				},
 			},

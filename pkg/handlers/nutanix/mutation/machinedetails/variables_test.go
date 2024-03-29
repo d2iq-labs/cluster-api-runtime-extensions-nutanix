@@ -26,18 +26,15 @@ func TestVariableValidation(t *testing.T) {
 			Vals: v1alpha1.ClusterConfigSpec{
 				ControlPlane: &v1alpha1.NodeConfigSpec{
 					Nutanix: &v1alpha1.NutanixNodeSpec{
-						MachineDetails: &v1alpha1.NutanixMachineDetails{
-							BootType:       "legacy",
-							VCPUSockets:    2,
-							VCPUsPerSocket: 1,
-							Image:          v1alpha1.NutanixResourceIdentifier{},
-							Cluster:        v1alpha1.NutanixResourceIdentifier{},
-							MemorySize:     "8Gi",
-							SystemDiskSize: "40Gi",
-							Subnets:        []v1alpha1.NutanixResourceIdentifier{},
-							Project:        v1alpha1.NutanixResourceIdentifier{},
-							GPUs:           []v1alpha1.NutanixGPU{},
-						},
+
+						BootType:       "legacy",
+						VCPUSockets:    2,
+						VCPUsPerSocket: 1,
+						Image:          v1alpha1.NutanixResourceIdentifier{},
+						Cluster:        v1alpha1.NutanixResourceIdentifier{},
+						MemorySize:     "8Gi",
+						SystemDiskSize: "40Gi",
+						Subnets:        []v1alpha1.NutanixResourceIdentifier{},
 					},
 				},
 			},

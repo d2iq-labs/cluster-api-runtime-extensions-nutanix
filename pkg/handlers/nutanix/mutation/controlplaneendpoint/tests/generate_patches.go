@@ -34,7 +34,7 @@ func TestGeneratePatches(
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
 					variableName,
-					v1alpha1.NutanixControlPlaneEndpointSpec{
+					v1alpha1.ControlPlaneEndpointSpec{
 						Host: "10.20.100.10",
 						Port: 6443,
 					},

@@ -95,16 +95,18 @@ func (h *nutanixPrismCentralEndpoint) Mutate(
 			).Info("setting prismCentralEndpoint in NutanixCluster spec")
 
 			obj.Spec.Template.Spec.PrismCentral = &credentials.NutanixPrismEndpoint{}
-			obj.Spec.Template.Spec.PrismCentral.Address = prismCentralEndpointVar.Host
+			obj.Spec.Template.Spec.PrismCentral.Address = prismCentralEndpointVar.Address
 			obj.Spec.Template.Spec.PrismCentral.Port = prismCentralEndpointVar.Port
 			obj.Spec.Template.Spec.PrismCentral.Insecure = prismCentralEndpointVar.Insecure
-			obj.Spec.Template.Spec.PrismCentral.AdditionalTrustBundle = &credentials.NutanixTrustBundleReference{
-				Kind: credentials.NutanixTrustBundleKindConfigMap,
-				Name: prismCentralEndpointVar.AdditionalTrustBundle,
+			if prismCentralEndpointVar.AdditionalTrustBundle != nil {
+				obj.Spec.Template.Spec.PrismCentral.AdditionalTrustBundle = &credentials.NutanixTrustBundleReference{
+					Kind: credentials.NutanixTrustBundleKindConfigMap,
+					Name: prismCentralEndpointVar.AdditionalTrustBundle.Name,
+				}
 			}
 			obj.Spec.Template.Spec.PrismCentral.CredentialRef = &credentials.NutanixCredentialReference{
 				Kind: credentials.SecretKind,
-				Name: prismCentralEndpointVar.CredentialSecret,
+				Name: prismCentralEndpointVar.Credentials.Name,
 			}
 
 			return nil
