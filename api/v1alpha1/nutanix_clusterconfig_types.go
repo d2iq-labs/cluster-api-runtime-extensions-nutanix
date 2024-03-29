@@ -16,11 +16,6 @@ type NutanixSpec struct {
 
 	// Nutanix Prism Central endpoint configuration.
 	PrismCentralEndpoint NutanixPrismCentralEndpointSpec `json:"prismCentral"`
-
-	// Configures failure domains information for the Nutanix platform.
-	// When set, the failure domains defined here may be used to spread Machines across
-	// prism element clusters to improve fault tolerance of the cluster.
-	FailureDomains []NutanixFailureDomain `json:"failureDomains"`
 }
 
 func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {
@@ -31,7 +26,6 @@ func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"prismCentralEndpoint": NutanixPrismCentralEndpointSpec{}.VariableSchema().OpenAPIV3Schema,
 				"controlPlaneEndpoint": ControlPlaneEndpointSpec{}.VariableSchema().OpenAPIV3Schema,
-				"failureDomains":       NutanixFailureDomains{}.VariableSchema().OpenAPIV3Schema,
 			},
 		},
 	}
@@ -105,57 +99,6 @@ func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema
 				},
 			},
 			Required: []string{"address", "port", "credentials"},
-		},
-	}
-}
-
-type NutanixFailureDomains []NutanixFailureDomain
-
-func (NutanixFailureDomains) VariableSchema() clusterv1.VariableSchema {
-	resourceSchema := NutanixFailureDomain{}.VariableSchema().OpenAPIV3Schema
-
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix failure domains",
-			Type:        "array",
-			Items:       &resourceSchema,
-		},
-	}
-}
-
-type NutanixFailureDomain capxv1.NutanixFailureDomain
-
-func (NutanixFailureDomain) VariableSchema() clusterv1.VariableSchema {
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix Failure Domain",
-			Type:        "object",
-			Properties: map[string]clusterv1.JSONSchemaProps{
-				"name": {
-					Description: "name of failure domain",
-					Type:        "string",
-				},
-				"cluster": NutanixResourceIdentifier{}.VariableSchema().OpenAPIV3Schema,
-				"subnets": NutanixResourceIdentifiers{}.VariableSchema().OpenAPIV3Schema,
-				"controlPlane": {
-					Description: "indicates if a failure domain is suited for control plane nodes",
-					Type:        "boolean",
-				},
-			},
-		},
-	}
-}
-
-type NutanixResourceIdentifiers []NutanixResourceIdentifier
-
-func (NutanixResourceIdentifiers) VariableSchema() clusterv1.VariableSchema {
-	resourceSchema := NutanixResourceIdentifier{}.VariableSchema().OpenAPIV3Schema
-
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix resource identifier",
-			Type:        "array",
-			Items:       &resourceSchema,
 		},
 	}
 }

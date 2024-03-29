@@ -35,21 +35,12 @@ type NutanixNodeSpec struct {
 	// or using the prism_central API.
 	Subnets NutanixResourceIdentifiers `json:"subnet"`
 
-	// List of categories that need to be added to the machines. Categories must already exist in Prism Central
-	AdditionalCategories []NutanixCategoryIdentifier `json:"additionalCategories,omitempty"`
-
-	// Add the machine resources to a Prism Central project
-	Project NutanixResourceIdentifier `json:"project,omitempty"`
-
 	// Defines the boot type of the virtual machine. Only supports UEFI and Legacy
 	BootType NutanixBootType `json:"bootType,omitempty"`
 
 	// systemDiskSize is size (in Quantity format) of the system disk of the VM
 	// The minimum systemDiskSize is 20Gi bytes
 	SystemDiskSize string `json:"systemDiskSize"`
-
-	// List of GPU devices that need to be added to the machines.
-	GPUs []NutanixGPU `json:"gpus,omitempty"`
 }
 
 func (NutanixNodeSpec) VariableSchema() clusterv1.VariableSchema {
@@ -78,9 +69,6 @@ func (NutanixNodeSpec) VariableSchema() clusterv1.VariableSchema {
 					Description: "systemDiskSize is size (in Quantity format) of the system disk of the VM eg. 20Gi",
 					Type:        "string",
 				},
-				"project":              NutanixResourceIdentifier{}.VariableSchema().OpenAPIV3Schema,
-				"additionalCategories": NutanixCategoryIdentifiers{}.VariableSchema().OpenAPIV3Schema,
-				"gpus":                 NutanixGPUs{}.VariableSchema().OpenAPIV3Schema,
 			},
 		},
 	}
@@ -110,18 +98,6 @@ func (NutanixBootType) VariableSchema() clusterv1.VariableSchema {
 	}
 }
 
-// NutanixGPUIdentifierType is an enumeration of different resource identifier types for GPU entities.
-type NutanixGPUIdentifierType capxv1.NutanixGPUIdentifierType
-
-func (NutanixGPUIdentifierType) VariableSchema() clusterv1.VariableSchema {
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Type:        "string",
-			Description: "NutanixGPUIdentifierType is an enumeration of different resource identifier types for GPU entities.",
-		},
-	}
-}
-
 type NutanixResourceIdentifier capxv1.NutanixResourceIdentifier
 
 func (NutanixResourceIdentifier) VariableSchema() clusterv1.VariableSchema {
@@ -144,71 +120,14 @@ func (NutanixResourceIdentifier) VariableSchema() clusterv1.VariableSchema {
 	}
 }
 
-type NutanixCategoryIdentifier capxv1.NutanixCategoryIdentifier
+type NutanixResourceIdentifiers []NutanixResourceIdentifier
 
-func (NutanixCategoryIdentifier) VariableSchema() clusterv1.VariableSchema {
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix Category Identifier",
-			Type:        "object",
-			Properties: map[string]clusterv1.JSONSchemaProps{
-				"key": {
-					Type:        "string",
-					Description: "key is the Key of category in PC.",
-				},
-				"value": {
-					Type:        "string",
-					Description: "value is the category value linked to the category key in PC",
-				},
-			},
-		},
-	}
-}
-
-type NutanixCategoryIdentifiers []NutanixCategoryIdentifier
-
-func (NutanixCategoryIdentifiers) VariableSchema() clusterv1.VariableSchema {
-	resourceSchema := NutanixCategoryIdentifier{}.VariableSchema().OpenAPIV3Schema
+func (NutanixResourceIdentifiers) VariableSchema() clusterv1.VariableSchema {
+	resourceSchema := NutanixResourceIdentifier{}.VariableSchema().OpenAPIV3Schema
 
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix category identifier",
-			Type:        "array",
-			Items:       &resourceSchema,
-		},
-	}
-}
-
-type NutanixGPU capxv1.NutanixGPU
-
-func (NutanixGPU) VariableSchema() clusterv1.VariableSchema {
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix GPU type",
-			Type:        "object",
-			Properties: map[string]clusterv1.JSONSchemaProps{
-				"type": NutanixGPUIdentifierType("name").VariableSchema().OpenAPIV3Schema,
-				"deviceID": {
-					Type:        "int64",
-					Description: "deviceID is the id of the GPU entity.",
-				},
-				"name": {
-					Type:        "string",
-					Description: "name is the GPU name.",
-				},
-			},
-		},
-	}
-}
-
-type NutanixGPUs []NutanixGPU
-
-func (NutanixGPUs) VariableSchema() clusterv1.VariableSchema {
-	resourceSchema := NutanixGPU{}.VariableSchema().OpenAPIV3Schema
-
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix GPU identifier",
+			Description: "Nutanix resource identifier",
 			Type:        "array",
 			Items:       &resourceSchema,
 		},
