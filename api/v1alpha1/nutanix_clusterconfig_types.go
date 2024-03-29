@@ -4,13 +4,23 @@
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
+// NutanixSpec defines the desired state of NutanixCluster
 type NutanixSpec struct {
-	PrismCentralEndpoint *NutanixPrismCentralEndpointSpec `json:"prismCentralEndpoint,omitempty"`
-	ControlPlaneEndpoint *NutanixControlPlaneEndpointSpec `json:"controlPlaneEndpoint,omitempty"`
-	FailureDomains       []NutanixFailureDomain           `json:"failureDomains,omitempty"`
+	// ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
+	// host can be either DNS name or ip address
+	ControlPlaneEndpoint clusterv1.APIEndpoint `json:"controlPlaneEndpoint"`
+
+	// Nutanix Prism Central endpoint configuration.
+	PrismCentralEndpoint NutanixPrismCentralEndpointSpec `json:"prismCentral"`
+
+	// Configures failure domains information for the Nutanix platform.
+	// When set, the failure domains defined here may be used to spread Machines across
+	// prism element clusters to improve fault tolerance of the cluster.
+	FailureDomains []NutanixFailureDomain `json:"failureDomains"`
 }
 
 func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {
@@ -20,7 +30,7 @@ func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {
 			Type:        "object",
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"prismCentralEndpoint": NutanixPrismCentralEndpointSpec{}.VariableSchema().OpenAPIV3Schema,
-				"controlPlaneEndpoint": NutanixControlPlaneEndpointSpec{}.VariableSchema().OpenAPIV3Schema,
+				"controlPlaneEndpoint": ControlPlaneEndpointSpec{}.VariableSchema().OpenAPIV3Schema,
 				"failureDomains":       NutanixFailureDomains{}.VariableSchema().OpenAPIV3Schema,
 			},
 		},
@@ -28,11 +38,24 @@ func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {
 }
 
 type NutanixPrismCentralEndpointSpec struct {
-	Host                  string `json:"host"`
-	Port                  int32  `json:"port"`
-	Insecure              bool   `json:"insecure"`
-	AdditionalTrustBundle string `json:"additionalTrustBundle,omitempty"`
-	CredentialSecret      string `json:"credentialSecret"`
+	// address is the endpoint address (DNS name or IP address) of the Nutanix Prism Central
+	Address string `json:"address"`
+
+	// port is the port number to access the Nutanix Prism Central
+	Port int32 `json:"port"`
+
+	// use insecure connection to Prism Central endpoint
+	// +optional
+	Insecure bool `json:"insecure"`
+
+	// A reference to the ConfigMap containing a PEM encoded x509 cert for the RootCA that was used to create the certificate
+	// for a Prism Central that uses certificates that were issued by a non-publicly trusted RootCA. The trust
+	// bundle is added to the cert pool used to authenticate the TLS connection to the Prism Central.
+	// +optional
+	AdditionalTrustBundle *corev1.LocalObjectReference `json:"additionalTrustBundle,omitempty"`
+
+	// A reference to the Secret for credential information for the target Prism Central instance
+	Credentials corev1.LocalObjectReference `json:"credentials"`
 }
 
 func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema {
@@ -41,51 +64,47 @@ func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema
 			Description: "Nutanix Prism Central endpoint configuration",
 			Type:        "object",
 			Properties: map[string]clusterv1.JSONSchemaProps{
-				"host": {
-					Description: "host ip/fqdn for Prism Central Server",
+				"address": {
+					Description: "the endpoint address (DNS name or IP address) of the Nutanix Prism Central",
 					Type:        "string",
 				},
 				"port": {
-					Description: "port for Prism Central Server",
+					Description: "The port number to access the Nutanix Prism Central",
 					Type:        "integer",
 				},
 				"insecure": {
-					Description: "Prism Central Certificate checking",
+					Description: "Use insecure connection to Prism Central endpoint",
 					Type:        "boolean",
 				},
 				"additionalTrustBundle": {
-					Description: "Name of configMap with certificate trust bundle used for Prism Central connection",
-					Type:        "string",
+					Description: "A reference to the ConfigMap containing a PEM encoded x509 cert for the RootCA " +
+						"that was used to create the certificate for a Prism Central that uses certificates " +
+						"that were issued by a non-publicly trusted RootCA." +
+						"The trust bundle is added to the cert pool used to authenticate the TLS connection " +
+						"to the Prism Central.",
+					Type: "object",
+					Properties: map[string]clusterv1.JSONSchemaProps{
+						"name": {
+							Description: "The name of the ConfigMap",
+							Type:        "string",
+						},
+					},
+					Required: []string{"name"},
 				},
-				"credentialSecret": {
-					Description: "Name of a Credential information secret for the target Prism instance",
-					Type:        "string",
-				},
-			},
-		},
-	}
-}
-
-type NutanixControlPlaneEndpointSpec struct {
-	Host string `json:"host,omitempty"`
-	Port int32  `json:"port,omitempty"`
-}
-
-func (NutanixControlPlaneEndpointSpec) VariableSchema() clusterv1.VariableSchema {
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: "Nutanix control-plane endpoint configuration",
-			Type:        "object",
-			Properties: map[string]clusterv1.JSONSchemaProps{
-				"host": {
-					Description: "host ip/fqdn for control plane API Server",
-					Type:        "string",
-				},
-				"port": {
-					Description: "port for control plane API Server",
-					Type:        "integer",
+				"credentials": {
+					Description: "A reference to the Secret for credential information" +
+						"for the target Prism Central instance",
+					Type: "object",
+					Properties: map[string]clusterv1.JSONSchemaProps{
+						"name": {
+							Description: "The name of the Secret",
+							Type:        "string",
+						},
+					},
+					Required: []string{"name"},
 				},
 			},
+			Required: []string{"address", "port", "credentials"},
 		},
 	}
 }
@@ -104,27 +123,7 @@ func (NutanixFailureDomains) VariableSchema() clusterv1.VariableSchema {
 	}
 }
 
-type NutanixFailureDomain struct {
-	// name defines the unique name of a failure domain.
-	// Name is required and must be at most 64 characters in length.
-	// It must consist of only lower case alphanumeric characters and hyphens (-).
-	// It must start and end with an alphanumeric character.
-	// This value is arbitrary and is used to identify the failure domain within the platform.
-	Name string `json:"name"`
-
-	// cluster is to identify the cluster (the Prism Element under management of the Prism Central),
-	// in which the Machine's VM will be created. The cluster identifier (uuid or name) can be obtained
-	// from the Prism Central console or using the prism_central API.
-	Cluster NutanixResourceIdentifier `json:"cluster"`
-
-	// subnets holds a list of identifiers (one or more) of the cluster's network subnets
-	// for the Machine's VM to connect to. The subnet identifiers (uuid or name) can be
-	// obtained from the Prism Central console or using the prism_central API.
-	Subnets []NutanixResourceIdentifier `json:"subnets"`
-
-	// indicates if a failure domain is suited for control plane nodes
-	ControlPlane bool `json:"controlPlane,omitempty"`
-}
+type NutanixFailureDomain capxv1.NutanixFailureDomain
 
 func (NutanixFailureDomain) VariableSchema() clusterv1.VariableSchema {
 	return clusterv1.VariableSchema{

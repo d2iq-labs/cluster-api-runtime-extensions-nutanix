@@ -3,6 +3,8 @@
 
 package v1alpha1
 
+import clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
 // ObjectMeta is metadata that all persisted resources must have, which includes all objects
 // users must create. This is a copy of customizable fields from metav1.ObjectMeta.
 //
@@ -22,4 +24,25 @@ type ObjectMeta struct {
 	// More info: http://kubernetes.io/docs/user-guide/annotations
 	// +optional
 	Annotations map[string]string `json:"annotations,omitempty"`
+}
+
+type ControlPlaneEndpointSpec clusterv1.APIEndpoint
+
+func (ControlPlaneEndpointSpec) VariableSchema() clusterv1.VariableSchema {
+	return clusterv1.VariableSchema{
+		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
+			Description: "Nutanix control-plane endpoint configuration",
+			Type:        "object",
+			Properties: map[string]clusterv1.JSONSchemaProps{
+				"host": {
+					Description: "host ip/fqdn for control plane API Server",
+					Type:        "string",
+				},
+				"port": {
+					Description: "port for control plane API Server",
+					Type:        "integer",
+				},
+			},
+		},
+	}
 }
