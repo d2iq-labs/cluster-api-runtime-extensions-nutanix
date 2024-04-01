@@ -5,7 +5,14 @@ package v1alpha1
 
 import (
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/utils/ptr"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
+)
+
+const (
+	PrismCentralPort = 9440
 )
 
 // NutanixSpec defines the desired state of NutanixCluster.
@@ -61,10 +68,14 @@ func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema
 				"address": {
 					Description: "the endpoint address (DNS name or IP address) of the Nutanix Prism Central",
 					Type:        "string",
+					MinLength:   ptr.To[int64](1),
 				},
 				"port": {
 					Description: "The port number to access the Nutanix Prism Central",
 					Type:        "integer",
+					Default:     variables.MustMarshal(PrismCentralPort),
+					Minimum:     ptr.To[int64](1),
+					Maximum:     ptr.To[int64](65535),
 				},
 				"insecure": {
 					Description: "Use insecure connection to Prism Central endpoint",
