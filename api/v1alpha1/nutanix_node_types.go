@@ -4,6 +4,7 @@
 package v1alpha1
 
 import (
+	"k8s.io/apimachinery/pkg/api/resource"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	capxv1 "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/external/github.com/nutanix-cloud-native/cluster-api-provider-nutanix/api/v1beta1"
@@ -35,7 +36,7 @@ type NutanixMachineDetails struct {
 	VCPUSockets int32 `json:"vcpuSockets"`
 
 	// memorySize is the memory size (in Quantity format) of the VM
-	MemorySize string `json:"memorySize"`
+	MemorySize resource.Quantity `json:"memorySize"`
 
 	// image is to identify the rhcos image uploaded to the Prism Central (PC)
 	// The image identifier (uuid or name) can be obtained from the Prism Central console
@@ -58,7 +59,7 @@ type NutanixMachineDetails struct {
 
 	// systemDiskSize is size (in Quantity format) of the system disk of the VM
 	// The minimum systemDiskSize is 20Gi bytes
-	SystemDiskSize string `json:"systemDiskSize"`
+	SystemDiskSize resource.Quantity `json:"systemDiskSize"`
 }
 
 func (NutanixMachineDetails) VariableSchema() clusterv1.VariableSchema {
