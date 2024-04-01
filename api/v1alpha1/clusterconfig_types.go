@@ -263,8 +263,10 @@ type ExtraAPIServerCertSANs []string
 func (ExtraAPIServerCertSANs) VariableSchema() clusterv1.VariableSchema {
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Description: fmt.Sprintf("Extra Subject Alternative Names for the API Server signing cert. For Docker %v are injected automatically.",
-				DefaultDockerCertSANs),
+			Description: fmt.Sprintf(
+				"Extra Subject Alternative Names for the API Server signing cert. For Docker %v are injected automatically.",
+				DefaultDockerCertSANs,
+			),
 			Type:        "array",
 			UniqueItems: true,
 			Items: &clusterv1.JSONSchemaProps{
