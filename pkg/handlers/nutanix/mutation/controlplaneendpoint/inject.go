@@ -62,7 +62,7 @@ func (h *nutanixControlPlaneEndpoint) Mutate(
 		"holderRef", holderRef,
 	)
 
-	controlPlaneEndpointVar, found, err := variables.Get[v1alpha1.NutanixControlPlaneEndpointSpec](
+	controlPlaneEndpointVar, found, err := variables.Get[v1alpha1.ControlPlaneEndpointSpec](
 		vars,
 		h.variableName,
 		h.variableFieldPath...,

@@ -20,7 +20,6 @@ func MetaPatchHandler(mgr manager.Manager) handlers.Named {
 		[]mutation.MetaMutator{
 			controlplaneendpoint.NewPatch(),
 			prismcentralendpoint.NewPatch(),
-			// failuredomains.NewPatch(),
 			machinedetails.NewControlPlanePatch(),
 		},
 		genericmutation.MetaMutators(mgr)...,

@@ -54,7 +54,7 @@ func (h *nutanixPrismCentralEndpoint) Mutate(
 	obj *unstructured.Unstructured,
 	vars map[string]apiextensionsv1.JSON,
 	holderRef runtimehooksv1.HolderReference,
-	_ client.ObjectKey,
+	clusterKey client.ObjectKey,
 ) error {
 	log := ctrl.LoggerFrom(ctx).WithValues(
 		"holderRef", holderRef,
@@ -94,19 +94,25 @@ func (h *nutanixPrismCentralEndpoint) Mutate(
 				"patchedObjectName", client.ObjectKeyFromObject(obj),
 			).Info("setting prismCentralEndpoint in NutanixCluster spec")
 
-			obj.Spec.Template.Spec.PrismCentral = &credentials.NutanixPrismEndpoint{
-				Address:  prismCentralEndpointVar.Host,
+			prismCentral := &credentials.NutanixPrismEndpoint{
+				Address:  prismCentralEndpointVar.Address,
 				Port:     prismCentralEndpointVar.Port,
 				Insecure: prismCentralEndpointVar.Insecure,
-				AdditionalTrustBundle: &credentials.NutanixTrustBundleReference{
-					Kind: credentials.NutanixTrustBundleKindConfigMap,
-					Name: prismCentralEndpointVar.AdditionalTrustBundle,
-				},
 				CredentialRef: &credentials.NutanixCredentialReference{
 					Kind: credentials.SecretKind,
-					Name: prismCentralEndpointVar.CredentialSecret,
+					Name: prismCentralEndpointVar.Credentials.Name,
+					// Assume the secret is in the same namespace as Cluster
+					Namespace: clusterKey.Namespace,
 				},
 			}
+			if prismCentralEndpointVar.AdditionalTrustBundle != nil {
+				prismCentral.AdditionalTrustBundle = &credentials.NutanixTrustBundleReference{
+					Kind: credentials.NutanixTrustBundleKindConfigMap,
+					Name: prismCentralEndpointVar.AdditionalTrustBundle.Name,
+				}
+			}
+
+			obj.Spec.Template.Spec.PrismCentral = prismCentral
 
 			return nil
 		},
