@@ -33,8 +33,8 @@ spec:
         value:
           users:
             - name: admin
-                - sshAuthorizedKeys:
-                    - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAua0lo8BiGWgvIiDCKnQDKL5uERHfnehm0ns5CEJpJw optionalcomment"
+                sshAuthorizedKeys:
+                  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAua0lo8BiGWgvIiDCKnQDKL5uERHfnehm0ns5CEJpJw optionalcomment"
               sudo: "ALL=(ALL) NOPASSWD:ALL"
 ```
 
