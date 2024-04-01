@@ -23,9 +23,12 @@ import (
 	kubernetesimagerepositorytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/kubernetesimagerepository/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors"
 	globalimageregistrymirrortests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors/tests"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/workerconfig"
 	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/controlplaneendpoint"
 	controlplaneendpointtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/controlplaneendpoint/tests"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails"
+	machinedetailstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint"
 	prismcentralendpointtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint/tests"
 )
@@ -61,6 +64,23 @@ func TestGeneratePatches(t *testing.T) {
 		clusterconfig.MetaVariableName,
 		nutanixclusterconfig.NutanixVariableName,
 		prismcentralendpoint.VariableName,
+	)
+
+	machinedetailstests.TestControlPlaneGeneratePatches(
+		t,
+		metaPatchGeneratorFunc(mgr),
+		clusterconfig.MetaVariableName,
+		clusterconfig.MetaControlPlaneConfigName,
+		nutanixclusterconfig.NutanixVariableName,
+		machinedetails.VariableName,
+	)
+
+	machinedetailstests.TestWorkerGeneratePatches(
+		t,
+		workerPatchGeneratorFunc(),
+		workerconfig.MetaVariableName,
+		nutanixclusterconfig.NutanixVariableName,
+		machinedetails.VariableName,
 	)
 
 	auditpolicytests.TestGeneratePatches(
