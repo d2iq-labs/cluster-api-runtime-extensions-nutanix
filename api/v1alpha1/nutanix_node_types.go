@@ -88,6 +88,7 @@ func (NutanixMachineDetails) VariableSchema() clusterv1.VariableSchema {
 					Type:        "string",
 				},
 			},
+			Required: []string{"vcpusPerSocket", "vcpuSockets", "memorySize", "image", "cluster", "subnet", "systemDiskSize"},
 		},
 	}
 }
