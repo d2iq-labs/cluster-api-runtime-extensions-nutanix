@@ -52,7 +52,7 @@ type NutanixMachineDetails struct {
 	// subnet is to identify the cluster's network subnet to use for the Machine's VM
 	// The cluster identifier (uuid or name) can be obtained from the Prism Central console
 	// or using the prism_central API.
-	Subnets NutanixResourceIdentifiers `json:"subnet"`
+	Subnets NutanixResourceIdentifiers `json:"subnets"`
 
 	// Defines the boot type of the virtual machine. Only supports UEFI and Legacy
 	BootType NutanixBootType `json:"bootType,omitempty"`
@@ -82,14 +82,14 @@ func (NutanixMachineDetails) VariableSchema() clusterv1.VariableSchema {
 				},
 				"image":    NutanixResourceIdentifier{}.VariableSchema().OpenAPIV3Schema,
 				"cluster":  NutanixResourceIdentifier{}.VariableSchema().OpenAPIV3Schema,
-				"subnet":   NutanixResourceIdentifiers{}.VariableSchema().OpenAPIV3Schema,
+				"subnets":  NutanixResourceIdentifiers{}.VariableSchema().OpenAPIV3Schema,
 				"bootType": NutanixBootType(capxv1.NutanixBootTypeLegacy).VariableSchema().OpenAPIV3Schema,
 				"systemDiskSize": {
 					Description: "systemDiskSize is size (in Quantity format) of the system disk of the VM eg. 20Gi",
 					Type:        "string",
 				},
 			},
-			Required: []string{"vcpusPerSocket", "vcpuSockets", "memorySize", "image", "cluster", "subnet", "systemDiskSize"},
+			Required: []string{"vcpusPerSocket", "vcpuSockets", "memorySize", "image", "cluster", "subnets", "systemDiskSize"},
 		},
 	}
 }
