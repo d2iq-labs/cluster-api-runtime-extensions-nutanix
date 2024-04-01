@@ -7,6 +7,7 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	capxv1 "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/external/github.com/nutanix-cloud-native/cluster-api-provider-nutanix/api/v1beta1"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
 )
 
 type NutanixNodeSpec struct {
@@ -99,6 +100,10 @@ func (NutanixIdentifierType) VariableSchema() clusterv1.VariableSchema {
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
 			Type:        "string",
 			Description: "NutanixIdentifierType is an enumeration of different resource identifier types",
+			Enum: variables.MustMarshalValuesToEnumJSON(
+				capxv1.NutanixIdentifierUUID,
+				capxv1.NutanixIdentifierName,
+			),
 		},
 	}
 }
@@ -111,6 +116,10 @@ func (NutanixBootType) VariableSchema() clusterv1.VariableSchema {
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
 			Type:        "string",
 			Description: "NutanixBootType is an enumeration of different boot types.",
+			Enum: variables.MustMarshalValuesToEnumJSON(
+				capxv1.NutanixBootTypeLegacy,
+				capxv1.NutanixBootTypeUEFI,
+			),
 		},
 	}
 }
