@@ -8,6 +8,7 @@ import (
 
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	capiv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -36,6 +37,10 @@ type extraAPIServerCertSANsPatchHandler struct {
 func NewPatch(
 	cl ctrlclient.Reader,
 ) *extraAPIServerCertSANsPatchHandler {
+	scheme := runtime.NewScheme()
+	_ = capiv1.AddToScheme(scheme)
+	_ = bootstrapv1.AddToScheme(scheme)
+	_ = controlplanev1.AddToScheme(scheme)
 	return newExtraAPIServerCertSANsPatchHandler(clusterconfig.MetaVariableName, cl, VariableName)
 }
 
