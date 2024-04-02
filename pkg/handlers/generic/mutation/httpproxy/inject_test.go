@@ -193,7 +193,9 @@ func TestHTTPProxyPatch(t *testing.T) {
 
 var _ = Describe("Generate HTTPProxy Patches", func() {
 	// only add HTTPProxy patch
-	httpProxyPatchGenerator := func() mutation.GeneratePatches {
+	patchGenerator := func() mutation.GeneratePatches {
+		// Always initialize the testEnv variable in the closure.
+		// This will allow ginkgo to initialize testEnv variable during test execution time.
 		testEnv := helpers.TestEnv
 		return mutation.NewMetaGeneratePatchesHandler(
 			"",
@@ -201,7 +203,7 @@ var _ = Describe("Generate HTTPProxy Patches", func() {
 	}
 	httpproxy.TestGeneratePatches(
 		GinkgoT(),
-		httpProxyPatchGenerator,
+		patchGenerator,
 		clusterconfig.MetaVariableName,
 		VariableName,
 	)

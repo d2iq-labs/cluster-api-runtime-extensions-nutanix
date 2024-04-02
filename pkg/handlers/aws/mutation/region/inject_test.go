@@ -22,12 +22,12 @@ func TestRegionPatch(t *testing.T) {
 
 var _ = Describe("Generate AWS Region patches", func() {
 	// only add aws region patch
-	regionPatchGenerator := func() mutation.GeneratePatches {
+	patchGenerator := func() mutation.GeneratePatches {
 		return mutation.NewMetaGeneratePatchesHandler("", NewPatch()).(mutation.GeneratePatches)
 	}
 	regiontests.TestGeneratePatches(
 		GinkgoT(),
-		regionPatchGenerator,
+		patchGenerator,
 		clusterconfig.MetaVariableName,
 		v1alpha1.AWSVariableName,
 		VariableName,
