@@ -28,7 +28,7 @@ func TestVariableValidation(t *testing.T) {
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						Address:  "prism-central.nutanix.com",
+						Host:     "prism-central.nutanix.com",
 						Port:     v1alpha1.PrismCentralPort,
 						Insecure: false,
 						Credentials: corev1.LocalObjectReference{
@@ -68,7 +68,7 @@ func TestVariableValidation(t *testing.T) {
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						Address:  "prism-central.nutanix.com",
+						Host:     "prism-central.nutanix.com",
 						Port:     v1alpha1.PrismCentralPort,
 						Insecure: false,
 					},

@@ -33,8 +33,8 @@ func TestVariableValidation(t *testing.T) {
 					},
 					// PrismCentralEndpoint is a required field and must always be set
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						Address: "prism-central.nutanix.com",
-						Port:    v1alpha1.PrismCentralPort,
+						Host: "prism-central.nutanix.com",
+						Port: v1alpha1.PrismCentralPort,
 						Credentials: corev1.LocalObjectReference{
 							Name: "credentials",
 						},
@@ -52,8 +52,8 @@ func TestVariableValidation(t *testing.T) {
 					},
 					// PrismCentralEndpoint is a required field and must always be set
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						Address: "prism-central.nutanix.com",
-						Port:    v1alpha1.PrismCentralPort,
+						Host: "prism-central.nutanix.com",
+						Port: v1alpha1.PrismCentralPort,
 						Credentials: corev1.LocalObjectReference{
 							Name: "credentials",
 						},
@@ -72,8 +72,8 @@ func TestVariableValidation(t *testing.T) {
 					},
 					// PrismCentralEndpoint is a required field and must always be set
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						Address: "prism-central.nutanix.com",
-						Port:    v1alpha1.PrismCentralPort,
+						Host: "prism-central.nutanix.com",
+						Port: v1alpha1.PrismCentralPort,
 						Credentials: corev1.LocalObjectReference{
 							Name: "credentials",
 						},

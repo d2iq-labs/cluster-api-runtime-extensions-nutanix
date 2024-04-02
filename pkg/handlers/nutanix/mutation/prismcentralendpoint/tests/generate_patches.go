@@ -36,7 +36,7 @@ func TestGeneratePatches(
 				capitest.VariableWithValue(
 					variableName,
 					v1alpha1.NutanixPrismCentralEndpointSpec{
-						Address:  "prism-central.nutanix.com",
+						Host:     "prism-central.nutanix.com",
 						Port:     9441,
 						Insecure: false,
 						Credentials: corev1.LocalObjectReference{

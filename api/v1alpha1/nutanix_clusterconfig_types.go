@@ -39,8 +39,8 @@ func (NutanixSpec) VariableSchema() clusterv1.VariableSchema {
 }
 
 type NutanixPrismCentralEndpointSpec struct {
-	// address is the endpoint address (DNS name or IP address) of the Nutanix Prism Central
-	Address string `json:"address"`
+	// host is the DNS name or IP address of the Nutanix Prism Central
+	Host string `json:"host"`
 
 	// port is the port number to access the Nutanix Prism Central
 	Port int32 `json:"port"`
@@ -65,8 +65,8 @@ func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema
 			Description: "Nutanix Prism Central endpoint configuration",
 			Type:        "object",
 			Properties: map[string]clusterv1.JSONSchemaProps{
-				"address": {
-					Description: "the endpoint address (DNS name or IP address) of the Nutanix Prism Central",
+				"host": {
+					Description: "the DNS name or IP address of the Nutanix Prism Central",
 					Type:        "string",
 					MinLength:   ptr.To[int64](1),
 				},
@@ -109,7 +109,7 @@ func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema
 					Required: []string{"name"},
 				},
 			},
-			Required: []string{"address", "port", "credentials"},
+			Required: []string{"host", "port", "credentials"},
 		},
 	}
 }

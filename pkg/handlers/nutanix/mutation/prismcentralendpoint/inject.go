@@ -95,7 +95,7 @@ func (h *nutanixPrismCentralEndpoint) Mutate(
 			).Info("setting prismCentralEndpoint in NutanixCluster spec")
 
 			prismCentral := &credentials.NutanixPrismEndpoint{
-				Address:  prismCentralEndpointVar.Address,
+				Address:  prismCentralEndpointVar.Host,
 				Port:     prismCentralEndpointVar.Port,
 				Insecure: prismCentralEndpointVar.Insecure,
 				CredentialRef: &credentials.NutanixCredentialReference{
