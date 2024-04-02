@@ -253,18 +253,15 @@ spec:
   template:
     spec:
       controlPlaneEndpoint:
-        host: ""
+        host: PLACEHOLDER
         port: 6443
       failureDomains: []
       prismCentral:
-        additionalTrustBundle:
-          kind: ConfigMap
-          name: ""
-        address: ""
+        address: PLACEHOLDER
         credentialRef:
           kind: Secret
-          name: replace-me-creds
-        insecure: true
+          name: PLACEHOLDER
+          namespace: default
         port: 9440
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1

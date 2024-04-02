@@ -29,24 +29,24 @@ patches:
       path: "/spec/patches"
     - op: "remove"
       path: "/spec/variables"
-# TODO: Temp added patches for NutanixClusterTemplate
+
+# FIXME: Debug why some of the patches are needed.
+# When the handler runs, it sends back multiple patches for individual fields.
+# But CAPI fails applying them because of missing value.
 - target:
     kind: NutanixClusterTemplate
   patch: |-
     - op: "add"
       path: "/spec/template/spec/controlPlaneEndpoint"
       value:
-        host: ""
+        host: PLACEHOLDER
         port: 6443
     - op: "add"
       path: "/spec/template/spec/prismCentral"
       value:
-        address: ''
+        address: PLACEHOLDER
         port: 9440
-        insecure: true
         credentialRef:
-          name: 'replace-me-creds'
+          name: PLACEHOLDER
           kind: Secret
-        additionalTrustBundle:
-          name: ''
-          kind: ConfigMap
+          namespace: default
