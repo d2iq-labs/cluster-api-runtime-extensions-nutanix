@@ -109,6 +109,8 @@ func (h *nutanixPrismCentralEndpoint) Mutate(
 				prismCentral.AdditionalTrustBundle = &credentials.NutanixTrustBundleReference{
 					Kind: credentials.NutanixTrustBundleKindConfigMap,
 					Name: prismCentralEndpointVar.AdditionalTrustBundle.Name,
+					// Assume the ConfigMap is in the same namespace as Cluster
+					Namespace: clusterKey.Namespace,
 				}
 			}
 
