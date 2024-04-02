@@ -85,6 +85,7 @@ spec:
 ```
 
 - worker nodes NutanixMachineTemplate:
+
 ```yaml
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: NutanixMachineTemplate

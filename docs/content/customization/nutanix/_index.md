@@ -1,4 +1,3 @@
-
 +++
 title = "Nutanix"
 icon = "fa-brands fa-nutanix"

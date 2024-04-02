@@ -8,7 +8,6 @@ Configure Control Plane Endpoint. Defines the host IP and port of the CAPX Kuber
 
 ### Set Control Plane Endpoint
 
-
 ```yaml
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
