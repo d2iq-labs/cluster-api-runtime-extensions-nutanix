@@ -19,6 +19,17 @@ var TestEnv *TestEnvironment
 
 // Initialize the test environment. BeforeSuite will be only executed if this package is loaded by the test.
 var _ = BeforeSuite(func(ctx SpecContext) {
+	By("Initialize loggers for testing")
+	// Uninitialized logger spits stacktrace as warning during test execution
+	logger := textlogger.NewLogger(textlogger.NewConfig())
+	// use klog as the internal logger for this envtest environment.
+	log.SetLogger(logger)
+	// additionally force all of the controllers to use the Ginkgo logger.
+	ctrl.SetLogger(logger)
+	klog.InitFlags(nil)
+	// add logger for ginkgo
+	klog.SetOutput(GinkgoWriter)
+
 	By("Starting test environment")
 	testEnvConfig := NewTestEnvironmentConfiguration()
 	var err error
@@ -26,8 +37,8 @@ var _ = BeforeSuite(func(ctx SpecContext) {
 	if err != nil {
 		panic(err)
 	}
+	By("Starting the manager")
 	go func() {
-		By("Starting the manager")
 		defer GinkgoRecover()
 		Expect(TestEnv.StartManager(ctx)).To(Succeed())
 	}()
@@ -36,15 +47,3 @@ var _ = BeforeSuite(func(ctx SpecContext) {
 var _ = AfterSuite(func(ctx context.Context) {
 	Expect(TestEnv.Stop()).To(Succeed())
 })
-
-//nolint:gochecknoinits //needed for test initialization
-func init() {
-	klog.InitFlags(nil)
-	logger := textlogger.NewLogger(textlogger.NewConfig())
-	// use klog as the internal logger for this envtest environment.
-	log.SetLogger(logger)
-	// additionally force all of the controllers to use the Ginkgo logger.
-	ctrl.SetLogger(logger)
-	// add logger for ginkgo
-	klog.SetOutput(GinkgoWriter)
-}
