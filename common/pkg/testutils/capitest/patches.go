@@ -44,7 +44,7 @@ func ValidateGeneratePatches[T mutation.GeneratePatches](
 	testDefs ...PatchTestDef,
 ) {
 	t.Helper()
-	patchTestFunc := func(tt PatchTestDef) {
+	testFunc := func(tt *PatchTestDef) {
 		g := gomega.NewWithT(t)
 		h := handlerCreator()
 		req := &runtimehooksv1.GeneratePatchesRequest{
@@ -84,12 +84,12 @@ func ValidateGeneratePatches[T mutation.GeneratePatches](
 
 	// compose Ginkgo table arguments
 	// https://onsi.github.io/ginkgo/#table-specs for more details
-	tableArgs := []interface{}{patchTestFunc}
+	testArgs := make([]TableEntry, 0, len(testDefs))
 	for testIdx := range testDefs {
 		tt := testDefs[testIdx]
-		tableArgs = append(tableArgs, Entry(tt.Name, tt))
+		testArgs = append(testArgs, Entry(tt.Name, &tt))
 	}
-	DescribeTable("Patches", tableArgs...)
+	DescribeTable("Patches", testFunc, testArgs)
 }
 
 // VariableWithValue returns a runtimehooksv1.Variable with the passed name and value.

@@ -6,9 +6,15 @@ package httpproxy
 import (
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
 	capiv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
+	httpproxy "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/httpproxy/tests"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/test/helpers"
 )
 
 func TestGenerateNoProxy(t *testing.T) {
@@ -179,3 +185,24 @@ func TestGenerateNoProxy(t *testing.T) {
 		})
 	}
 }
+
+func TestHTTPProxyPatch(t *testing.T) {
+	gomega.RegisterFailHandler(Fail)
+	RunSpecs(t, "HTTP Proxy mutator suite")
+}
+
+var _ = Describe("Generate HTTPProxy Patches", func() {
+	// only add HTTPProxy patch
+	httpProxyPatchGenerator := func() mutation.GeneratePatches {
+		testEnv := helpers.TestEnv
+		return mutation.NewMetaGeneratePatchesHandler(
+			"",
+			NewPatch(testEnv.Client)).(mutation.GeneratePatches)
+	}
+	httpproxy.TestGeneratePatches(
+		GinkgoT(),
+		httpProxyPatchGenerator,
+		clusterconfig.MetaVariableName,
+		VariableName,
+	)
+})
