@@ -8,7 +8,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	. "github.com/onsi/gomega"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/v1alpha1"
@@ -19,7 +18,7 @@ import (
 )
 
 func TestNetworkPatch(t *testing.T) {
-	RegisterFailHandler(Fail)
+	gomega.RegisterFailHandler(Fail)
 	RunSpecs(t, "AWS Network mutator suite")
 }
 

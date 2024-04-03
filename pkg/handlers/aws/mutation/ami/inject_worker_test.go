@@ -6,7 +6,6 @@ package ami
 import (
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 

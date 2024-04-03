@@ -8,7 +8,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	. "github.com/onsi/gomega"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 
 	capav1 "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/external/sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
@@ -20,7 +19,7 @@ import (
 )
 
 func TestControlPlaneLoadBalancerPatch(t *testing.T) {
-	RegisterFailHandler(Fail)
+	gomega.RegisterFailHandler(Fail)
 	RunSpecs(t, "AWS ControlPlane LoadBalancer mutator suite")
 }
 

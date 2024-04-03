@@ -9,7 +9,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
-
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 	auditpolicytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/auditpolicy/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/etcd"
@@ -29,12 +28,6 @@ import (
 func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches {
 	return func() mutation.GeneratePatches {
 		return MetaPatchHandler(mgr).(mutation.GeneratePatches)
-	}
-}
-
-func workerPatchGeneratorFunc() func() mutation.GeneratePatches {
-	return func() mutation.GeneratePatches {
-		return MetaWorkerPatchHandler().(mutation.GeneratePatches)
 	}
 }
 
