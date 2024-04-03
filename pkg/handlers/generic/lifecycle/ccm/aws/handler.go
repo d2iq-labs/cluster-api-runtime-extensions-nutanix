@@ -20,13 +20,13 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/options"
 )
 
-type AWSCCMConfig struct {
+type Config struct {
 	*options.GlobalOptions
 
 	kubernetesMinorVersionToCCMConfigMapNames map[string]string
 }
 
-func (a *AWSCCMConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
+func (a *Config) AddFlags(prefix string, flags *pflag.FlagSet) {
 	flags.StringToStringVar(
 		&a.kubernetesMinorVersionToCCMConfigMapNames,
 		prefix+".default-aws-ccm-configmap-names",
@@ -38,22 +38,22 @@ func (a *AWSCCMConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
 	)
 }
 
-type AWSCCM struct {
+type provider struct {
 	client ctrlclient.Client
-	config *AWSCCMConfig
+	config *Config
 }
 
 func New(
 	c ctrlclient.Client,
-	cfg *AWSCCMConfig,
-) *AWSCCM {
-	return &AWSCCM{
+	cfg *Config,
+) *provider {
+	return &provider{
 		client: c,
 		config: cfg,
 	}
 }
 
-func (a *AWSCCM) Apply(
+func (p *provider) Apply(
 	ctx context.Context,
 	cluster *clusterv1.Cluster,
 ) error {
@@ -67,17 +67,17 @@ func (a *AWSCCM) Apply(
 		return fmt.Errorf("failed to parse version from cluster %w", err)
 	}
 	minorVersion := fmt.Sprintf("%d.%d", version.Major, version.Minor)
-	configMapForMinorVersion := a.config.kubernetesMinorVersionToCCMConfigMapNames[minorVersion]
+	configMapForMinorVersion := p.config.kubernetesMinorVersionToCCMConfigMapNames[minorVersion]
 	ccmConfigMapForMinorVersion := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: a.config.DefaultsNamespace(),
+			Namespace: p.config.DefaultsNamespace(),
 			Name:      configMapForMinorVersion,
 		},
 	}
 	objName := ctrlclient.ObjectKeyFromObject(
 		ccmConfigMapForMinorVersion,
 	)
-	err = a.client.Get(ctx, objName, ccmConfigMapForMinorVersion)
+	err = p.client.Get(ctx, objName, ccmConfigMapForMinorVersion)
 	if err != nil {
 		log.Error(err, "failed to fetch CCM template for cluster")
 		return fmt.Errorf(
@@ -88,7 +88,7 @@ func (a *AWSCCM) Apply(
 	}
 
 	ccmConfigMap := generateCCMConfigMapForCluster(ccmConfigMapForMinorVersion, cluster)
-	if err = client.ServerSideApply(ctx, a.client, ccmConfigMap); err != nil {
+	if err = client.ServerSideApply(ctx, p.client, ccmConfigMap); err != nil {
 		log.Error(err, "failed to apply CCM configmap for cluster")
 		return fmt.Errorf(
 			"failed to apply AWS CCM manifests ConfigMap: %w",
@@ -96,7 +96,7 @@ func (a *AWSCCM) Apply(
 		)
 	}
 
-	err = lifecycleutils.EnsureCRSForClusterFromObjects(ctx, ccmConfigMap.Name, a.client, cluster, ccmConfigMap)
+	err = lifecycleutils.EnsureCRSForClusterFromObjects(ctx, ccmConfigMap.Name, p.client, cluster, ccmConfigMap)
 	if err != nil {
 		return fmt.Errorf("failed to generate CCM CRS for cluster: %w", err)
 	}

@@ -21,12 +21,12 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/options"
 )
 
-type AWSEBSConfig struct {
+type Config struct {
 	*options.GlobalOptions
 	defaultAWSEBSConfigMapName string
 }
 
-func (a *AWSEBSConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
+func (a *Config) AddFlags(prefix string, flags *pflag.FlagSet) {
 	flags.StringVar(
 		&a.defaultAWSEBSConfigMapName,
 		prefix+".aws-ebs-provider-configmap-name",
@@ -35,22 +35,22 @@ func (a *AWSEBSConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
 	)
 }
 
-type AWSEBS struct {
+type CSI struct {
 	client ctrlclient.Client
-	config *AWSEBSConfig
+	config *Config
 }
 
 func New(
 	c ctrlclient.Client,
-	cfg *AWSEBSConfig,
-) *AWSEBS {
-	return &AWSEBS{
+	cfg *Config,
+) *CSI {
+	return &CSI{
 		client: c,
 		config: cfg,
 	}
 }
 
-func (a *AWSEBS) Apply(
+func (a *CSI) Apply(
 	ctx context.Context,
 	provider v1alpha1.CSIProvider,
 	defaultStorageConfig *v1alpha1.DefaultStorage,
@@ -75,7 +75,7 @@ func (a *AWSEBS) Apply(
 	)
 }
 
-func (a *AWSEBS) createStorageClasses(ctx context.Context,
+func (a *CSI) createStorageClasses(ctx context.Context,
 	configs []v1alpha1.StorageClassConfig,
 	cluster *clusterv1.Cluster,
 	defaultStorageConfig *v1alpha1.DefaultStorage,
@@ -112,7 +112,7 @@ func (a *AWSEBS) createStorageClasses(ctx context.Context,
 	)
 }
 
-func (a *AWSEBS) handleCRSApply(ctx context.Context,
+func (a *CSI) handleCRSApply(ctx context.Context,
 	req *runtimehooksv1.AfterControlPlaneInitializedRequest,
 ) error {
 	awsEBSCSIConfigMap := &corev1.ConfigMap{

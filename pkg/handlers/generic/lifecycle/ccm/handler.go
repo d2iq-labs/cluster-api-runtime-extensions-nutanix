@@ -24,27 +24,27 @@ const (
 	variableRootName = "ccm"
 )
 
-type CCMProvider interface {
+type Provider interface {
 	Apply(context.Context, *clusterv1.Cluster) error
 }
 
-type CCMHandler struct {
+type ccmHandler struct {
 	client          ctrlclient.Client
 	variableName    string
 	variablePath    []string
-	ProviderHandler map[string]CCMProvider
+	ProviderHandler map[string]Provider
 }
 
 var (
-	_ commonhandlers.Named                   = &CCMHandler{}
-	_ lifecycle.AfterControlPlaneInitialized = &CCMHandler{}
+	_ commonhandlers.Named                   = &ccmHandler{}
+	_ lifecycle.AfterControlPlaneInitialized = &ccmHandler{}
 )
 
 func New(
 	c ctrlclient.Client,
-	handlers map[string]CCMProvider,
-) *CCMHandler {
-	return &CCMHandler{
+	handlers map[string]Provider,
+) *ccmHandler {
+	return &ccmHandler{
 		client:          c,
 		variableName:    clusterconfig.MetaVariableName,
 		variablePath:    []string{"addons", variableRootName},
@@ -52,11 +52,11 @@ func New(
 	}
 }
 
-func (c *CCMHandler) Name() string {
+func (c *ccmHandler) Name() string {
 	return "CCMHandler"
 }
 
-func (c *CCMHandler) AfterControlPlaneInitialized(
+func (c *ccmHandler) AfterControlPlaneInitialized(
 	ctx context.Context,
 	req *runtimehooksv1.AfterControlPlaneInitializedRequest,
 	resp *runtimehooksv1.AfterControlPlaneInitializedResponse,
@@ -90,7 +90,7 @@ func (c *CCMHandler) AfterControlPlaneInitialized(
 	}
 	infraKind := req.Cluster.Spec.InfrastructureRef.Kind
 	log.Info(fmt.Sprintf("finding CCM handler for %s", infraKind))
-	var handler CCMProvider
+	var handler Provider
 	switch {
 	case strings.Contains(strings.ToLower(infraKind), v1alpha1.CCMProviderAWS):
 		handler = c.ProviderHandler[v1alpha1.CCMProviderAWS]

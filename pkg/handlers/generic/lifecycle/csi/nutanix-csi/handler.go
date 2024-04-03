@@ -34,12 +34,12 @@ const (
 	defaultSnapshotHelmReleaseNameTemplate = "nutanix-csi-snapshot-%s"
 )
 
-type NutanixCSIConfig struct {
+type Config struct {
 	*options.GlobalOptions
 	defaultValuesTemplateConfigMapName string
 }
 
-func (n *NutanixCSIConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
+func (n *Config) AddFlags(prefix string, flags *pflag.FlagSet) {
 	flags.StringVar(
 		&n.defaultValuesTemplateConfigMapName,
 		prefix+".default-values-template-configmap-name",
@@ -48,22 +48,22 @@ func (n *NutanixCSIConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
 	)
 }
 
-type NutanixCSI struct {
+type CSI struct {
 	client ctrlclient.Client
-	config *NutanixCSIConfig
+	config *Config
 }
 
 func New(
 	c ctrlclient.Client,
-	cfg *NutanixCSIConfig,
-) *NutanixCSI {
-	return &NutanixCSI{
+	cfg *Config,
+) *CSI {
+	return &CSI{
 		client: c,
 		config: cfg,
 	}
 }
 
-func (n *NutanixCSI) Apply(
+func (n *CSI) Apply(
 	ctx context.Context,
 	provider v1alpha1.CSIProvider,
 	defaultStorageConfig *v1alpha1.DefaultStorage,
@@ -118,7 +118,7 @@ func (n *NutanixCSI) Apply(
 	)
 }
 
-func (n *NutanixCSI) handleHelmAddonApply(
+func (n *CSI) handleHelmAddonApply(
 	ctx context.Context,
 	req *runtimehooksv1.AfterControlPlaneInitializedRequest,
 ) error {
@@ -205,7 +205,7 @@ func (n *NutanixCSI) handleHelmAddonApply(
 	return nil
 }
 
-func (n *NutanixCSI) createStorageClasses(ctx context.Context,
+func (n *CSI) createStorageClasses(ctx context.Context,
 	configs []v1alpha1.StorageClassConfig,
 	cluster *clusterv1.Cluster,
 	defaultStorageConfig *v1alpha1.DefaultStorage,

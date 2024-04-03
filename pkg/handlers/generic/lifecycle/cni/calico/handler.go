@@ -42,7 +42,7 @@ func (c *CNIConfig) AddFlags(prefix string, flags *pflag.FlagSet) {
 	c.helmAddonConfig.AddFlags(prefix+".helm-addon", flags)
 }
 
-type CalicoCNI struct {
+type CNI struct {
 	client ctrlclient.Client
 	config *CNIConfig
 
@@ -51,15 +51,15 @@ type CalicoCNI struct {
 }
 
 var (
-	_ commonhandlers.Named                   = &CalicoCNI{}
-	_ lifecycle.AfterControlPlaneInitialized = &CalicoCNI{}
+	_ commonhandlers.Named                   = &CNI{}
+	_ lifecycle.AfterControlPlaneInitialized = &CNI{}
 )
 
 func New(
 	c ctrlclient.Client,
 	cfg *CNIConfig,
-) *CalicoCNI {
-	return &CalicoCNI{
+) *CNI {
+	return &CNI{
 		client:       c,
 		config:       cfg,
 		variableName: clusterconfig.MetaVariableName,
@@ -67,11 +67,11 @@ func New(
 	}
 }
 
-func (s *CalicoCNI) Name() string {
+func (s *CNI) Name() string {
 	return "CalicoCNI"
 }
 
-func (s *CalicoCNI) AfterControlPlaneInitialized(
+func (s *CNI) AfterControlPlaneInitialized(
 	ctx context.Context,
 	req *runtimehooksv1.AfterControlPlaneInitializedRequest,
 	resp *runtimehooksv1.AfterControlPlaneInitializedResponse,

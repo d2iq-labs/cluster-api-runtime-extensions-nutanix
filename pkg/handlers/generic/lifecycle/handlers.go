@@ -27,9 +27,9 @@ type Handlers struct {
 	ciliumCNIConfig         *cilium.CNIConfig
 	nfdConfig               *nfd.Config
 	clusterAutoscalerConfig *clusterautoscaler.Config
-	ebsConfig               *awsebs.AWSEBSConfig
-	nutnaixCSIConfig        *nutanixcsi.NutanixCSIConfig
-	awsccmConfig            *awsccm.AWSCCMConfig
+	ebsCSIConfig            *awsebs.Config
+	nutanixCSIConfig        *nutanixcsi.Config
+	awsCCMConfig            *awsccm.Config
 }
 
 func New(globalOptions *options.GlobalOptions) *Handlers {
@@ -38,19 +38,19 @@ func New(globalOptions *options.GlobalOptions) *Handlers {
 		ciliumCNIConfig:         &cilium.CNIConfig{GlobalOptions: globalOptions},
 		nfdConfig:               &nfd.Config{GlobalOptions: globalOptions},
 		clusterAutoscalerConfig: &clusterautoscaler.Config{GlobalOptions: globalOptions},
-		ebsConfig:               &awsebs.AWSEBSConfig{GlobalOptions: globalOptions},
-		awsccmConfig:            &awsccm.AWSCCMConfig{GlobalOptions: globalOptions},
-		nutnaixCSIConfig:        &nutanixcsi.NutanixCSIConfig{GlobalOptions: globalOptions},
+		ebsCSIConfig:            &awsebs.Config{GlobalOptions: globalOptions},
+		awsCCMConfig:            &awsccm.Config{GlobalOptions: globalOptions},
+		nutanixCSIConfig:        &nutanixcsi.Config{GlobalOptions: globalOptions},
 	}
 }
 
 func (h *Handlers) AllHandlers(mgr manager.Manager) []handlers.Named {
-	csiHandlers := map[string]csi.CSIProvider{
-		v1alpha1.CSIProviderAWSEBS:  awsebs.New(mgr.GetClient(), h.ebsConfig),
-		v1alpha1.CSIProviderNutanix: nutanixcsi.New(mgr.GetClient(), h.nutnaixCSIConfig),
+	csiHandlers := map[string]csi.Provider{
+		v1alpha1.CSIProviderAWSEBS:  awsebs.New(mgr.GetClient(), h.ebsCSIConfig),
+		v1alpha1.CSIProviderNutanix: nutanixcsi.New(mgr.GetClient(), h.nutanixCSIConfig),
 	}
-	ccmHandlers := map[string]ccm.CCMProvider{
-		v1alpha1.CCMProviderAWS: awsccm.New(mgr.GetClient(), h.awsccmConfig),
+	ccmHandlers := map[string]ccm.Provider{
+		v1alpha1.CCMProviderAWS: awsccm.New(mgr.GetClient(), h.awsCCMConfig),
 	}
 
 	return []handlers.Named{
@@ -69,7 +69,7 @@ func (h *Handlers) AddFlags(flagSet *pflag.FlagSet) {
 	h.clusterAutoscalerConfig.AddFlags("cluster-autoscaler", flagSet)
 	h.calicoCNIConfig.AddFlags("cni.calico", flagSet)
 	h.ciliumCNIConfig.AddFlags("cni.cilium", flagSet)
-	h.ebsConfig.AddFlags("awsebs", pflag.CommandLine)
-	h.awsccmConfig.AddFlags("awsccm", pflag.CommandLine)
-	h.nutnaixCSIConfig.AddFlags("nutanixcsi", flagSet)
+	h.ebsCSIConfig.AddFlags("awsebs", pflag.CommandLine)
+	h.awsCCMConfig.AddFlags("awsccm", pflag.CommandLine)
+	h.nutanixCSIConfig.AddFlags("nutanixcsi", flagSet)
 }

@@ -22,7 +22,7 @@ const (
 	variableRootName = "csi"
 )
 
-type CSIProvider interface {
+type Provider interface {
 	Apply(
 		context.Context,
 		v1alpha1.CSIProvider,
@@ -31,23 +31,23 @@ type CSIProvider interface {
 	) error
 }
 
-type CSIHandler struct {
+type Handler struct {
 	client          ctrlclient.Client
 	variableName    string
 	variablePath    []string
-	ProviderHandler map[string]CSIProvider
+	ProviderHandler map[string]Provider
 }
 
 var (
-	_ commonhandlers.Named                   = &CSIHandler{}
-	_ lifecycle.AfterControlPlaneInitialized = &CSIHandler{}
+	_ commonhandlers.Named                   = &Handler{}
+	_ lifecycle.AfterControlPlaneInitialized = &Handler{}
 )
 
 func New(
 	c ctrlclient.Client,
-	handlers map[string]CSIProvider,
-) *CSIHandler {
-	return &CSIHandler{
+	handlers map[string]Provider,
+) *Handler {
+	return &Handler{
 		client:          c,
 		variableName:    clusterconfig.MetaVariableName,
 		variablePath:    []string{"addons", variableRootName},
@@ -55,11 +55,11 @@ func New(
 	}
 }
 
-func (c *CSIHandler) Name() string {
+func (c *Handler) Name() string {
 	return "CSIHandler"
 }
 
-func (c *CSIHandler) AfterControlPlaneInitialized(
+func (c *Handler) AfterControlPlaneInitialized(
 	ctx context.Context,
 	req *runtimehooksv1.AfterControlPlaneInitializedRequest,
 	resp *runtimehooksv1.AfterControlPlaneInitializedResponse,
