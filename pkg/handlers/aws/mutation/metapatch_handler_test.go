@@ -12,8 +12,6 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 
 	calicotests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/cni/calico/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/controlplaneloadbalancer"
-	controlplaneloadbalancertests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/controlplaneloadbalancer/tests"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 	auditpolicytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/auditpolicy/tests"
@@ -96,14 +94,6 @@ func TestGeneratePatches(t *testing.T) {
 		mgr.GetClient(),
 		clusterconfig.MetaVariableName,
 		mirrors.GlobalMirrorVariableName,
-	)
-
-	controlplaneloadbalancertests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		controlplaneloadbalancer.VariableName,
 	)
 
 	userstests.TestGeneratePatches(
