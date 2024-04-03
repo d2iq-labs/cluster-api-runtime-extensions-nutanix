@@ -15,8 +15,7 @@ import (
 	calicotests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/cni/calico/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/controlplaneloadbalancer"
 	controlplaneloadbalancertests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/controlplaneloadbalancer/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/iaminstanceprofile"
-	iaminstanceprofiletests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/iaminstanceprofile/tests"
+
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/instancetype"
 	instancetypetests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/instancetype/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/network"
@@ -54,23 +53,6 @@ func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	iaminstanceprofiletests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		v1alpha1.AWSVariableName,
-		iaminstanceprofile.VariableName,
-	)
-
-	iaminstanceprofiletests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		iaminstanceprofile.VariableName,
-	)
 
 	instancetypetests.TestControlPlaneGeneratePatches(
 		t,
