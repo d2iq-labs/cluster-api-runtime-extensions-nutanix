@@ -8,10 +8,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/v1alpha1"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
-
-	calicotests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/cni/calico/tests"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 	auditpolicytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/auditpolicy/tests"
@@ -45,14 +42,6 @@ func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	calicotests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		"addons",
-		v1alpha1.CNIVariableName,
-	)
 
 	auditpolicytests.TestGeneratePatches(
 		t,
