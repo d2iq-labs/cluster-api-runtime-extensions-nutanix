@@ -52,6 +52,9 @@ spec:
     - name: clusterConfig
       value:
         addons:
+          ccm:
+            credentials:
+              name: ${CLUSTER_NAME}-pc-creds
           clusterAutoscaler:
             strategy: HelmAddon
           cni:
