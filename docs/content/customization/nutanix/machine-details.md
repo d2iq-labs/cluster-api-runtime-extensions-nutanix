@@ -57,7 +57,7 @@ spec:
 
 Applying this configuration will result in the following value being set:
 
-- control-plane NutanixMachineTemplate:
+- control-plane `NutanixMachineTemplate`:
 
 ```yaml
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -84,7 +84,7 @@ spec:
       vcpusPerSocket: 1
 ```
 
-- worker nodes NutanixMachineTemplate:
+- worker `NutanixMachineTemplate`:
 
 ```yaml
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1

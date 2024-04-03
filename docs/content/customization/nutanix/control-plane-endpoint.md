@@ -26,7 +26,7 @@ spec:
 
 Applying this configuration will result in the following value being set:
 
-- control-plane NutanixClusterTemplate:
+- `NutanixCluster`:
 
 ```yaml
 spec:
