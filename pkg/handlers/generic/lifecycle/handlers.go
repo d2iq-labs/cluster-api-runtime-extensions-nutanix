@@ -80,6 +80,7 @@ func (h *Handlers) AllHandlers(mgr manager.Manager) []handlers.Named {
 }
 
 func (h *Handlers) AddFlags(flagSet *pflag.FlagSet) {
+	h.helmLifecycleOptions.AddFlags("lifecycle.", flagSet)
 	h.nfdConfig.AddFlags("nfd", flagSet)
 	h.clusterAutoscalerConfig.AddFlags("cluster-autoscaler", flagSet)
 	h.calicoCNIConfig.AddFlags("cni.calico", flagSet)
