@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+=======
+>>>>>>> 771001a (ci: adds tooling to create configmap)
 package main
 
 import (
@@ -58,6 +61,10 @@ func main() {
 		}
 		fullOutputfilePath = path.Join(wd, outputFile)
 	}
+<<<<<<< HEAD
+=======
+	fmt.Println(fullOutputfilePath)
+>>>>>>> 771001a (ci: adds tooling to create configmap)
 	f, err := os.OpenFile(fullOutputfilePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o666)
 	if err != nil {
 		log.Error(err, "failed to create file")
@@ -70,10 +77,17 @@ func main() {
 }
 
 type configMapInfo struct {
+<<<<<<< HEAD
 	configMapFieldName string
 	RepositoryURL      string `json:"RepositoryURL"`
 	ChartVersion       string `json:"ChartVersion"`
 	ChartName          string `json:"ChartName"`
+=======
+	configMapFieldName   string
+	DefaultRepositoryURL string `json:"defaultRepositoryUrl"`
+	DefaultChartVersion  string `json:"defaultChartVersion"`
+	DefaultChartName     string `json:"defaultChartName"`
+>>>>>>> 771001a (ci: adds tooling to create configmap)
 }
 
 func createConfigMapFromDir(kustomizeDir string) (*corev1.ConfigMap, error) {
@@ -91,7 +105,11 @@ func createConfigMapFromDir(kustomizeDir string) (*corev1.ConfigMap, error) {
 		if err != nil {
 			return err
 		}
+<<<<<<< HEAD
 		if strings.Contains(filepath, "kustomization.yaml.tmpl") && !isIgnored(filepath) {
+=======
+		if strings.Contains(filepath, "kustomization.yaml.tmpl") {
+>>>>>>> 771001a (ci: adds tooling to create configmap)
 			f, err := os.Open(path.Join(fullPath, filepath))
 			if err != nil {
 				return fmt.Errorf("failed to open file: %w", err)
@@ -119,6 +137,7 @@ func createConfigMapFromDir(kustomizeDir string) (*corev1.ConfigMap, error) {
 			name := info["name"].(string)
 			dirName := strings.Split(filepath, "/")[0]
 			i := configMapInfo{
+<<<<<<< HEAD
 				configMapFieldName: dirName,
 				RepositoryURL:      repo,
 				ChartName:          name,
@@ -126,6 +145,15 @@ func createConfigMapFromDir(kustomizeDir string) (*corev1.ConfigMap, error) {
 			versionEnvVar := info["version"].(string)
 			version := os.ExpandEnv(versionEnvVar)
 			i.ChartVersion = version
+=======
+				configMapFieldName:   fmt.Sprintf("%s-config", dirName),
+				DefaultRepositoryURL: repo,
+				DefaultChartName:     name,
+			}
+			versionEnvVar := info["version"].(string)
+			version := os.ExpandEnv(versionEnvVar)
+			i.DefaultChartVersion = version
+>>>>>>> 771001a (ci: adds tooling to create configmap)
 			results = append(results, i)
 			return nil
 		}
@@ -134,7 +162,11 @@ func createConfigMapFromDir(kustomizeDir string) (*corev1.ConfigMap, error) {
 
 	finalCM := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
+<<<<<<< HEAD
 			Name: "placeholder",
+=======
+			Name: "default-helm-addons-config",
+>>>>>>> 771001a (ci: adds tooling to create configmap)
 		},
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
@@ -151,6 +183,7 @@ func createConfigMapFromDir(kustomizeDir string) (*corev1.ConfigMap, error) {
 	}
 	return &finalCM, err
 }
+<<<<<<< HEAD
 
 var ignored = []string{
 	"aws-ccm",
@@ -165,3 +198,5 @@ func isIgnored(filepath string) bool {
 	}
 	return false
 }
+=======
+>>>>>>> 771001a (ci: adds tooling to create configmap)
