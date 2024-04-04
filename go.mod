@@ -3,7 +3,7 @@
 
 module github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix
 
-go 1.21
+go 1.22
 
 replace (
 	github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api => ./api

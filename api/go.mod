@@ -3,7 +3,7 @@
 
 module github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api
 
-go 1.21
+go 1.22
 
 require (
 	github.com/nutanix-cloud-native/prism-go-client v0.3.4
