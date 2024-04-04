@@ -10,7 +10,6 @@ import (
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
-	auditpolicytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/auditpolicy/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/etcd"
 	etcdtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/etcd/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/extraapiservercertsans"
@@ -35,11 +34,6 @@ func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	auditpolicytests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-	)
 
 	etcdtests.TestGeneratePatches(
 		t,
