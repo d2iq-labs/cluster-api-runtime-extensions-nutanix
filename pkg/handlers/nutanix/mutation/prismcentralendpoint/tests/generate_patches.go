@@ -34,14 +34,48 @@ func TestGeneratePatches(
 			Name: "unset variable",
 		},
 		capitest.PatchTestDef{
-			Name: "all fields set",
+			Name: "all required fields set",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
 					variableName,
 					v1alpha1.NutanixPrismCentralEndpointSpec{
 						Host:     "prism-central.nutanix.com",
 						Port:     9441,
-						Insecure: false,
+						Insecure: true,
+						Credentials: corev1.LocalObjectReference{
+							Name: "credentials",
+						},
+					},
+					variablePath...,
+				),
+			},
+			RequestItem: request.NewNutanixClusterTemplateRequestItem(""),
+			ExpectedPatchMatchers: []capitest.JSONPatchMatcher{
+				{
+					Operation: "replace",
+					Path:      "/spec/template/spec/prismCentral",
+					ValueMatcher: gomega.SatisfyAll(
+						gomega.HaveKeyWithValue(
+							"address",
+							gomega.BeEquivalentTo("prism-central.nutanix.com"),
+						),
+						gomega.HaveKeyWithValue("port", gomega.BeEquivalentTo(9441)),
+						gomega.HaveKeyWithValue("insecure", true),
+						gomega.HaveKey("credentialRef"),
+						gomega.Not(gomega.HaveKey("additionalTrustBundle")),
+					),
+				},
+			},
+		},
+		capitest.PatchTestDef{
+			Name: "additional trust bundle is set",
+			Vars: []runtimehooksv1.Variable{
+				capitest.VariableWithValue(
+					variableName,
+					v1alpha1.NutanixPrismCentralEndpointSpec{
+						Host:     "prism-central.nutanix.com",
+						Port:     9441,
+						Insecure: true,
 						Credentials: corev1.LocalObjectReference{
 							Name: "credentials",
 						},
@@ -61,6 +95,7 @@ func TestGeneratePatches(
 							gomega.BeEquivalentTo("prism-central.nutanix.com"),
 						),
 						gomega.HaveKeyWithValue("port", gomega.BeEquivalentTo(9441)),
+						// Assert the insecure field was set to false as the additional trust bundle is set
 						gomega.HaveKeyWithValue("insecure", false),
 						gomega.HaveKey("credentialRef"),
 						gomega.HaveKey("additionalTrustBundle"),
