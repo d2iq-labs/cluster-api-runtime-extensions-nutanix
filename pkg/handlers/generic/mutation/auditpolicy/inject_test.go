@@ -1,11 +1,12 @@
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tests
+package auditpolicy
 
 import (
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
@@ -13,18 +14,21 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest/request"
 )
 
-func TestGeneratePatches(
-	t *testing.T, generatorFunc func() mutation.GeneratePatches,
-) {
-	t.Helper()
+func TestAuditPolicyPatch(t *testing.T) {
+	gomega.RegisterFailHandler(Fail)
+	RunSpecs(t, "Audit Policy mutator suite")
+}
 
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
+var _ = Describe("Generate Audit Policy patches", func() {
+	patchGenerator := func() mutation.GeneratePatches {
+		return mutation.NewMetaGeneratePatchesHandler("", NewPatch()).(mutation.GeneratePatches)
+	}
+
+	testDefs := []capitest.PatchTestDef{
+		{
 			Name: "unset variable",
 		},
-		capitest.PatchTestDef{
+		{
 			Name:        "auditpolicy set for KubeadmControlPlaneTemplate",
 			RequestItem: request.NewKubeadmControlPlaneTemplateRequestItem(""),
 			ExpectedPatchMatchers: []capitest.JSONPatchMatcher{{
@@ -71,5 +75,13 @@ func TestGeneratePatches(
 				),
 			}},
 		},
-	)
-}
+	}
+
+	// create test node for each case
+	for testIdx := range testDefs {
+		tt := testDefs[testIdx]
+		It(tt.Name, func() {
+			capitest.AssertGeneratePatches(GinkgoT(), patchGenerator, &tt)
+		})
+	}
+})

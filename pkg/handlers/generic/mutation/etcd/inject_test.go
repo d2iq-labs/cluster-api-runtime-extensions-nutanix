@@ -1,11 +1,12 @@
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tests
+package etcd
 
 import (
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 
@@ -13,34 +14,35 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest/request"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 )
 
-func TestGeneratePatches(
-	t *testing.T,
-	generatorFunc func() mutation.GeneratePatches,
-	variableName string,
-	variablePath ...string,
-) {
-	t.Helper()
+func TestEtcdPolicyPatch(t *testing.T) {
+	gomega.RegisterFailHandler(Fail)
+	RunSpecs(t, "etcd mutator suite")
+}
 
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
+var _ = Describe("Generate etcd patches", func() {
+	patchGenerator := func() mutation.GeneratePatches {
+		return mutation.NewMetaGeneratePatchesHandler("", NewPatch()).(mutation.GeneratePatches)
+	}
+
+	testDefs := []capitest.PatchTestDef{
+		{
 			Name: "unset variable",
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "etcd imageRepository and imageTag set",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.Etcd{
 						Image: &v1alpha1.Image{
 							Repository: "my-registry.io/my-org/my-repo",
 							Tag:        "v3.5.99_custom.0",
 						},
 					},
-					variablePath...,
+					VariableName,
 				),
 			},
 			RequestItem: request.NewKubeadmControlPlaneTemplateRequestItem(""),
@@ -60,17 +62,17 @@ func TestGeneratePatches(
 				},
 			},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "etcd imageRepository set",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.Etcd{
 						Image: &v1alpha1.Image{
 							Repository: "my-registry.io/my-org/my-repo",
 						},
 					},
-					variablePath...,
+					VariableName,
 				),
 			},
 			RequestItem: request.NewKubeadmControlPlaneTemplateRequestItem(""),
@@ -89,17 +91,17 @@ func TestGeneratePatches(
 				},
 			},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "etcd imageTag set",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.Etcd{
 						Image: &v1alpha1.Image{
 							Tag: "v3.5.99_custom.0",
 						},
 					},
-					variablePath...,
+					VariableName,
 				),
 			},
 			RequestItem: request.NewKubeadmControlPlaneTemplateRequestItem(""),
@@ -118,5 +120,13 @@ func TestGeneratePatches(
 				},
 			},
 		},
-	)
-}
+	}
+
+	// create test node for each case
+	for testIdx := range testDefs {
+		tt := testDefs[testIdx]
+		It(tt.Name, func() {
+			capitest.AssertGeneratePatches(GinkgoT(), patchGenerator, &tt)
+		})
+	}
+})
