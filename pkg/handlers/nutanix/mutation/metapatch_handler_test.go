@@ -25,8 +25,6 @@ import (
 	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails"
 	machinedetailstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint"
-	prismcentralendpointtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint/tests"
 )
 
 func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches {
@@ -45,14 +43,6 @@ func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	prismcentralendpointtests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		nutanixclusterconfig.NutanixVariableName,
-		prismcentralendpoint.VariableName,
-	)
 
 	machinedetailstests.TestControlPlaneGeneratePatches(
 		t,
