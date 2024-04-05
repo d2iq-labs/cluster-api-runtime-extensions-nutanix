@@ -21,14 +21,6 @@ import (
 	kubernetesimagerepositorytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/kubernetesimagerepository/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors"
 	globalimageregistrymirrortests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/workerconfig"
-	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/controlplaneendpoint"
-	controlplaneendpointtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/controlplaneendpoint/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails"
-	machinedetailstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint"
-	prismcentralendpointtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint/tests"
 )
 
 func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches {
@@ -37,49 +29,10 @@ func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches
 	}
 }
 
-func workerPatchGeneratorFunc() func() mutation.GeneratePatches {
-	return func() mutation.GeneratePatches {
-		return MetaWorkerPatchHandler().(mutation.GeneratePatches)
-	}
-}
-
 func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	controlplaneendpointtests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		nutanixclusterconfig.NutanixVariableName,
-		controlplaneendpoint.VariableName,
-	)
-
-	prismcentralendpointtests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		nutanixclusterconfig.NutanixVariableName,
-		prismcentralendpoint.VariableName,
-	)
-
-	machinedetailstests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		nutanixclusterconfig.NutanixVariableName,
-		machinedetails.VariableName,
-	)
-
-	machinedetailstests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		nutanixclusterconfig.NutanixVariableName,
-		machinedetails.VariableName,
-	)
 
 	auditpolicytests.TestGeneratePatches(
 		t,
