@@ -1,11 +1,12 @@
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tests
+package controlplaneendpoint
 
 import (
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
@@ -13,32 +14,35 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest/request"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
+	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
 )
 
-func TestGeneratePatches(
-	t *testing.T,
-	generatorFunc func() mutation.GeneratePatches,
-	variableName string,
-	variablePath ...string,
-) {
-	t.Helper()
+func TestControlPlaneEndpointPatch(t *testing.T) {
+	gomega.RegisterFailHandler(Fail)
+	RunSpecs(t, "Nutanix ControlPlane endpoint suite")
+}
 
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
+var _ = Describe("Generate Nutanix ControlPlane endpoint patches", func() {
+	patchGenerator := func() mutation.GeneratePatches {
+		return mutation.NewMetaGeneratePatchesHandler("", NewPatch()).(mutation.GeneratePatches)
+	}
+
+	testDefs := []capitest.PatchTestDef{
+		{
 			Name: "unset variable",
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "ControlPlaneEndpoint set to valid host and port",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					clusterv1.APIEndpoint{
 						Host: "10.20.100.10",
 						Port: 6443,
 					},
-					variablePath...,
+					nutanixclusterconfig.NutanixVariableName,
+					VariableName,
 				),
 			},
 			RequestItem: request.NewNutanixClusterTemplateRequestItem(""),
@@ -55,5 +59,17 @@ func TestGeneratePatches(
 				},
 			},
 		},
-	)
-}
+	}
+
+	// create test node for each case
+	for testIdx := range testDefs {
+		tt := testDefs[testIdx]
+		It(tt.Name, func() {
+			capitest.AssertGeneratePatches(
+				GinkgoT(),
+				patchGenerator,
+				&tt,
+			)
+		})
+	}
+})

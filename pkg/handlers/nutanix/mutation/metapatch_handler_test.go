@@ -23,8 +23,6 @@ import (
 	globalimageregistrymirrortests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/workerconfig"
 	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/controlplaneendpoint"
-	controlplaneendpointtests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/controlplaneendpoint/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails"
 	machinedetailstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/prismcentralendpoint"
@@ -47,14 +45,6 @@ func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	controlplaneendpointtests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		nutanixclusterconfig.NutanixVariableName,
-		controlplaneendpoint.VariableName,
-	)
 
 	prismcentralendpointtests.TestGeneratePatches(
 		t,
