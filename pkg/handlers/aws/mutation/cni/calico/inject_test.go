@@ -1,13 +1,13 @@
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tests
+package calico
 
 import (
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"github.com/onsi/gomega/format"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
 
 	capav1 "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/external/sigs.k8s.io/cluster-api-provider-aws/v2/api/v1beta2"
@@ -15,34 +15,33 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest/request"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 )
 
-func TestGeneratePatches(
-	t *testing.T,
-	generatorFunc func() mutation.GeneratePatches,
-	variableName string,
-	variablePath ...string,
-) {
-	t.Helper()
+func TestCalicoPatch(t *testing.T) {
+	gomega.RegisterFailHandler(Fail)
+	RunSpecs(t, "AWS Calico CNI ingress mutator suite")
+}
 
-	format.MaxLength = 0
-	format.TruncatedDiff = false
+var _ = Describe("Generate AWS Calico CNI ingress patches", func() {
+	patchGenerator := func() mutation.GeneratePatches {
+		return mutation.NewMetaGeneratePatchesHandler("", NewPatch()).(mutation.GeneratePatches)
+	}
 
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
+	testDefs := []capitest.PatchTestDef{
+		{
 			Name: "unset variable",
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "provider set with AWSClusterTemplate",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.CNI{
 						Provider: v1alpha1.CNIProviderCalico,
 					},
-					variablePath...,
+					"addons",
+					v1alpha1.CNIVariableName,
 				),
 			},
 			RequestItem: request.NewAWSClusterTemplateRequestItem("1234"),
@@ -101,15 +100,16 @@ func TestGeneratePatches(
 				),
 			}},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "provider set with AWSClusterTemplate pre-existing rules",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.CNI{
 						Provider: v1alpha1.CNIProviderCalico,
 					},
-					variablePath...,
+					"addons",
+					v1alpha1.CNIVariableName,
 				),
 			},
 			RequestItem: request.NewAWSClusterTemplateRequestItem(
@@ -193,15 +193,16 @@ func TestGeneratePatches(
 				),
 			}},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "provider set with AWSClusterTemplate conflicting pre-existing rules",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.CNI{
 						Provider: v1alpha1.CNIProviderCalico,
 					},
-					variablePath...,
+					"addons",
+					v1alpha1.CNIVariableName,
 				),
 			},
 			RequestItem: request.NewAWSClusterTemplateRequestItem(
@@ -273,5 +274,17 @@ func TestGeneratePatches(
 				),
 			}},
 		},
-	)
-}
+	}
+
+	// create test node for each case
+	for testIdx := range testDefs {
+		tt := testDefs[testIdx]
+		It(tt.Name, func() {
+			capitest.AssertGeneratePatches(
+				GinkgoT(),
+				patchGenerator,
+				&tt,
+			)
+		})
+	}
+})

@@ -8,19 +8,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/v1alpha1"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/ami"
-	amitests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/ami/tests"
-	calicotests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/cni/calico/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/controlplaneloadbalancer"
-	controlplaneloadbalancertests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/controlplaneloadbalancer/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/iaminstanceprofile"
-	iaminstanceprofiletests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/iaminstanceprofile/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/instancetype"
-	instancetypetests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/instancetype/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/network"
-	networktests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/aws/mutation/network/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 	auditpolicytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/auditpolicy/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/etcd"
@@ -35,7 +23,6 @@ import (
 	globalimageregistrymirrortests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/users"
 	userstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/users/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/workerconfig"
 )
 
 func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches {
@@ -44,58 +31,10 @@ func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches
 	}
 }
 
-func workerPatchGeneratorFunc() func() mutation.GeneratePatches {
-	return func() mutation.GeneratePatches {
-		return MetaWorkerPatchHandler().(mutation.GeneratePatches)
-	}
-}
-
 func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	iaminstanceprofiletests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		v1alpha1.AWSVariableName,
-		iaminstanceprofile.VariableName,
-	)
-
-	iaminstanceprofiletests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		iaminstanceprofile.VariableName,
-	)
-
-	instancetypetests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		v1alpha1.AWSVariableName,
-		instancetype.VariableName,
-	)
-
-	instancetypetests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		instancetype.VariableName,
-	)
-
-	calicotests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		"addons",
-		v1alpha1.CNIVariableName,
-	)
 
 	auditpolicytests.TestGeneratePatches(
 		t,
@@ -137,39 +76,6 @@ func TestGeneratePatches(t *testing.T) {
 		mgr.GetClient(),
 		clusterconfig.MetaVariableName,
 		mirrors.GlobalMirrorVariableName,
-	)
-
-	amitests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		v1alpha1.AWSVariableName,
-		ami.VariableName,
-	)
-
-	amitests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		ami.VariableName,
-	)
-
-	networktests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		network.VariableName,
-	)
-
-	controlplaneloadbalancertests.TestGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		v1alpha1.AWSVariableName,
-		controlplaneloadbalancer.VariableName,
 	)
 
 	userstests.TestGeneratePatches(
