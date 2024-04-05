@@ -1,24 +1,24 @@
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tests
+package mirrors
 
 import (
-	"context"
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apiserver/pkg/storage/names"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/v1alpha1"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest/request"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/test/helpers"
 )
 
 const (
@@ -29,35 +29,35 @@ const (
 	workerRegistryAsMirrorCreds = "kubeadmConfigTemplateRegistryAsMirrorCreds"
 )
 
-func TestGeneratePatches(
-	t *testing.T,
-	generatorFunc func() mutation.GeneratePatches,
-	fakeClient client.Client,
-	variableName string,
-	variablePath ...string,
-) {
-	t.Helper()
+func TestMirrorsPatch(t *testing.T) {
+	gomega.RegisterFailHandler(Fail)
+	RunSpecs(t, "Global mirror mutator suite")
+}
 
-	require.NoError(
-		t,
-		fakeClient.Create(
-			context.Background(),
-			newMirrorSecret(validMirrorCASecretName, request.Namespace),
-		),
-	)
+var _ = Describe("Generate Global mirror patches", func() {
+	patchGenerator := func() mutation.GeneratePatches {
+		// Always initialize the testEnv variable in the closure.
+		// This will allow ginkgo to initialize testEnv variable during test execution time.
+		testEnv := helpers.TestEnv
+		// use direct client instead of controller client. This will allow the patch handler to read k8s object
+		// that are written by the tests.
+		// Test cases writes credentials secret that the mutator handler reads.
+		// Using direct client will enable reading it immediately.
+		client, err := testEnv.GetK8sClient()
+		gomega.Expect(err).To(gomega.BeNil())
+		return mutation.NewMetaGeneratePatchesHandler("", NewPatch(client)).(mutation.GeneratePatches)
+	}
 
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
+	testDefs := []capitest.PatchTestDef{
+		{
 			Name: "files added in KubeadmControlPlaneTemplate for registry with mirror without CA Certificate",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.GlobalImageRegistryMirror{
 						URL: "https://123456789.dkr.ecr.us-east-1.amazonaws.com",
 					},
-					variablePath...,
+					GlobalMirrorVariableName,
 				),
 			},
 			RequestItem: request.NewKubeadmControlPlaneTemplateRequestItem(""),
@@ -90,11 +90,11 @@ func TestGeneratePatches(
 				},
 			},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "files added in KubeadmControlPlaneTemplate for registry with mirror with CA Certificate",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.GlobalImageRegistryMirror{
 						URL: "https://registry.example.com",
 						Credentials: &v1alpha1.RegistryCredentials{
@@ -103,7 +103,7 @@ func TestGeneratePatches(
 							},
 						},
 					},
-					variablePath...,
+					GlobalMirrorVariableName,
 				),
 			},
 			RequestItem: request.NewKubeadmControlPlaneTemplateRequest("", cpRegistryAsMirrorCreds),
@@ -139,15 +139,15 @@ func TestGeneratePatches(
 				},
 			},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "files added in KubeadmConfigTemplate for registry mirror wihthout CA certificate",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.GlobalImageRegistryMirror{
 						URL: "https://123456789.dkr.ecr.us-east-1.amazonaws.com",
 					},
-					variablePath...,
+					GlobalMirrorVariableName,
 				),
 				capitest.VariableWithValue(
 					"builtin",
@@ -188,11 +188,11 @@ func TestGeneratePatches(
 				},
 			},
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "files added in KubeadmConfigTemplate for registry mirror with secret for CA certificate",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					v1alpha1.GlobalImageRegistryMirror{
 						URL: "https://registry.example.com",
 						Credentials: &v1alpha1.RegistryCredentials{
@@ -201,7 +201,7 @@ func TestGeneratePatches(
 							},
 						},
 					},
-					variablePath...,
+					GlobalMirrorVariableName,
 				),
 				capitest.VariableWithValue(
 					"builtin",
@@ -245,8 +245,36 @@ func TestGeneratePatches(
 				},
 			},
 		},
-	)
-}
+	}
+
+	// Create credentials secret before each test
+	BeforeEach(func(ctx SpecContext) {
+		client, err := helpers.TestEnv.GetK8sClient()
+		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(client.Create(
+			ctx,
+			newMirrorSecret(validMirrorCASecretName, request.Namespace),
+		)).To(gomega.BeNil())
+	})
+
+	// Delete credentials secret after each test
+	AfterEach(func(ctx SpecContext) {
+		client, err := helpers.TestEnv.GetK8sClient()
+		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(client.Delete(
+			ctx,
+			newMirrorSecret(validMirrorCASecretName, request.Namespace),
+		)).To(gomega.BeNil())
+	})
+
+	// create test node for each case
+	for testIdx := range testDefs {
+		tt := testDefs[testIdx]
+		It(tt.Name, func() {
+			capitest.AssertGeneratePatches(GinkgoT(), patchGenerator, &tt)
+		})
+	}
+})
 
 func newMirrorSecret(name, namespace string) *corev1.Secret {
 	secretData := map[string][]byte{
