@@ -1,13 +1,11 @@
 // Copyright 2023 D2iQ, Inc. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tests
+package machinedetails
 
 import (
-	"testing"
-
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/utils/ptr"
 	runtimehooksv1 "sigs.k8s.io/cluster-api/exp/runtime/hooks/api/v1alpha1"
@@ -17,6 +15,8 @@ import (
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/testutils/capitest/request"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
+	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
 )
 
 var (
@@ -96,66 +96,40 @@ var (
 	}
 )
 
-func TestControlPlaneGeneratePatches(
-	t *testing.T,
-	generatorFunc func() mutation.GeneratePatches,
-	variableName string,
-	variablePath ...string,
-) {
-	t.Helper()
+var _ = Describe("Generate Nutanix Machine Details patches for ControlPlane", func() {
+	patchGenerator := func() mutation.GeneratePatches {
+		return mutation.NewMetaGeneratePatchesHandler("", NewControlPlanePatch()).(mutation.GeneratePatches)
+	}
 
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
+	testDefs := []capitest.PatchTestDef{
+		{
 			Name: "unset variable",
 		},
-		capitest.PatchTestDef{
+		{
 			Name: "all fields set for control-plane",
 			Vars: []runtimehooksv1.Variable{
 				capitest.VariableWithValue(
-					variableName,
+					clusterconfig.MetaVariableName,
 					variableWithAllFieldsSet,
-					variablePath...,
+					clusterconfig.MetaControlPlaneConfigName,
+					nutanixclusterconfig.NutanixVariableName,
+					VariableName,
 				),
 			},
 			RequestItem:           request.NewCPNutanixMachineTemplateRequestItem(""),
 			ExpectedPatchMatchers: matchersForAllFieldsSet,
 		},
-	)
-}
+	}
 
-func TestWorkerGeneratePatches(
-	t *testing.T,
-	generatorFunc func() mutation.GeneratePatches,
-	variableName string,
-	variablePath ...string,
-) {
-	t.Helper()
-
-	capitest.ValidateGeneratePatches(
-		t,
-		generatorFunc,
-		capitest.PatchTestDef{
-			Name: "unset variable",
-		},
-		capitest.PatchTestDef{
-			Name: "all fields set for workers",
-			Vars: []runtimehooksv1.Variable{
-				capitest.VariableWithValue(
-					variableName,
-					variableWithAllFieldsSet,
-					variablePath...,
-				),
-				capitest.VariableWithValue(
-					"builtin",
-					apiextensionsv1.JSON{
-						Raw: []byte(`{"machineDeployment": {"class": "a-worker"}}`),
-					},
-				),
-			},
-			RequestItem:           request.NewWorkerNutanixMachineTemplateRequestItem(""),
-			ExpectedPatchMatchers: matchersForAllFieldsSet,
-		},
-	)
-}
+	// create test node for each case
+	for testIdx := range testDefs {
+		tt := testDefs[testIdx]
+		It(tt.Name, func() {
+			capitest.AssertGeneratePatches(
+				GinkgoT(),
+				patchGenerator,
+				&tt,
+			)
+		})
+	}
+})

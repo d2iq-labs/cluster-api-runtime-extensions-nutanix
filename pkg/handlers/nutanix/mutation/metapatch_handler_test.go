@@ -21,10 +21,6 @@ import (
 	kubernetesimagerepositorytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/kubernetesimagerepository/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors"
 	globalimageregistrymirrortests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/workerconfig"
-	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails"
-	machinedetailstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation/machinedetails/tests"
 )
 
 func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches {
@@ -33,33 +29,10 @@ func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches
 	}
 }
 
-func workerPatchGeneratorFunc() func() mutation.GeneratePatches {
-	return func() mutation.GeneratePatches {
-		return MetaWorkerPatchHandler().(mutation.GeneratePatches)
-	}
-}
-
 func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	machinedetailstests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		nutanixclusterconfig.NutanixVariableName,
-		machinedetails.VariableName,
-	)
-
-	machinedetailstests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		nutanixclusterconfig.NutanixVariableName,
-		machinedetails.VariableName,
-	)
 
 	auditpolicytests.TestGeneratePatches(
 		t,
