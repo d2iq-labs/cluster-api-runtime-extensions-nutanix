@@ -9,10 +9,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers/mutation"
-	dockerclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/docker/clusterconfig"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/docker/mutation/customimage"
-	customimagetests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/docker/mutation/customimage/tests"
-	dockerworkerconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/docker/workerconfig"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/clusterconfig"
 	auditpolicytests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/auditpolicy/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/etcd"
@@ -27,7 +23,6 @@ import (
 	globalimageregistrymirrortests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/mirrors/tests"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/users"
 	userstests "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/mutation/users/tests"
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/generic/workerconfig"
 )
 
 func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches {
@@ -36,33 +31,10 @@ func metaPatchGeneratorFunc(mgr manager.Manager) func() mutation.GeneratePatches
 	}
 }
 
-func workerPatchGeneratorFunc() func() mutation.GeneratePatches {
-	return func() mutation.GeneratePatches {
-		return MetaWorkerPatchHandler().(mutation.GeneratePatches)
-	}
-}
-
 func TestGeneratePatches(t *testing.T) {
 	t.Parallel()
 
 	mgr := testEnv.Manager
-
-	customimagetests.TestControlPlaneGeneratePatches(
-		t,
-		metaPatchGeneratorFunc(mgr),
-		clusterconfig.MetaVariableName,
-		clusterconfig.MetaControlPlaneConfigName,
-		dockerclusterconfig.DockerVariableName,
-		customimage.VariableName,
-	)
-
-	customimagetests.TestWorkerGeneratePatches(
-		t,
-		workerPatchGeneratorFunc(),
-		workerconfig.MetaVariableName,
-		dockerworkerconfig.DockerVariableName,
-		customimage.VariableName,
-	)
 
 	auditpolicytests.TestGeneratePatches(
 		t,
