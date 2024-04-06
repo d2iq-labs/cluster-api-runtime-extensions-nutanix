@@ -17,7 +17,7 @@ func TestVariableValidation(t *testing.T) {
 	capitest.ValidateDiscoverVariables(
 		t,
 		workerconfig.MetaVariableName,
-		ptr.To(v1alpha1.NodeConfigSpec{AWS: &v1alpha1.AWSNodeSpec{}}.VariableSchema()),
+		ptr.To(v1alpha1.DefaultAWSWorkerConfigSpec().VariableSchema()),
 		false,
 		NewVariable,
 		capitest.VariableTestDef{
