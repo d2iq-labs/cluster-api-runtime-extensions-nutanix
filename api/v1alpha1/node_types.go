@@ -8,16 +8,18 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
 )
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NodeConfig is the Schema for the workerconfigs API.
 type NodeConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	//+optional
+	// +optional
 	Spec NodeConfigSpec `json:"spec,omitempty"`
 }
 
@@ -61,6 +63,14 @@ func (s NodeConfigSpec) VariableSchema() clusterv1.VariableSchema {
 	}
 
 	return nodeConfigProps
+}
+
+func (s *NodeConfigSpec) ToClusterVariable(name string) (*clusterv1.ClusterVariable, error) {
+	return variables.MarshalToClusterVariable(name, s)
+}
+
+func (s *NodeConfigSpec) FromClusterVariable(clusterVariable *clusterv1.ClusterVariable) error {
+	return variables.UnmarshalClusterVariable(clusterVariable, s)
 }
 
 type GenericNodeConfig struct{}

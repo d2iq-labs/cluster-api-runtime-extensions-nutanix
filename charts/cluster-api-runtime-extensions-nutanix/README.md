@@ -77,3 +77,6 @@ A Helm chart for cluster-api-runtime-extensions-nutanix
 | service.port | int | `443` |  |
 | service.type | string | `"ClusterIP"` |  |
 | tolerations | list | `[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Equal"},{"effect":"NoSchedule","key":"node-role.kubernetes.io/control-plane","operator":"Equal"}]` | Kubernetes pod tolerations |
+| webhooks.service.annotations | object | `{}` |  |
+| webhooks.service.port | int | `443` |  |
+| webhooks.service.type | string | `"ClusterIP"` |  |

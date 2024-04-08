@@ -23,6 +23,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	caaphv1 "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/external/sigs.k8s.io/cluster-api-addon-provider-helm/api/v1alpha1"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/common/pkg/capi/clustertopology/handlers"
@@ -38,6 +39,7 @@ import (
 	nutanixmutation "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/mutation"
 	nutanixworkerconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/workerconfig"
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/options"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/webhooks"
 )
 
 func main() {
@@ -80,6 +82,9 @@ func main() {
 
 	runtimeWebhookServerOpts := server.NewServerOptions()
 
+	// mutating/validating webhook server options
+	webhookServerOpts := webhooks.NewOptions()
+
 	globalOptions := options.NewGlobalOptions()
 
 	genericLifecycleHandlers := lifecycle.New(globalOptions)
@@ -89,6 +94,7 @@ func main() {
 	logsv1.AddFlags(logOptions, pflag.CommandLine)
 	globalOptions.AddFlags(pflag.CommandLine)
 	runtimeWebhookServerOpts.AddFlags(pflag.CommandLine)
+	webhookServerOpts.AddFlags(pflag.CommandLine)
 	genericLifecycleHandlers.AddFlags(pflag.CommandLine)
 	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
@@ -104,6 +110,14 @@ func main() {
 
 	// Add the klog logger in the context.
 	ctrl.SetLogger(klog.Background())
+
+	// Setup mutating/validating webhook server
+	mgrOptions.WebhookServer = webhook.NewServer(
+		webhook.Options{
+			Port:    webhookServerOpts.WebhookPort,
+			CertDir: webhookServerOpts.WebhookCertDir,
+		},
+	)
 
 	signalCtx := ctrl.SetupSignalHandler()
 
@@ -151,6 +165,11 @@ func main() {
 
 	if err := mgr.Add(runtimeWebhookServer); err != nil {
 		setupLog.Error(err, "unable to add runtime webhook server runnable to controller manager")
+		os.Exit(1)
+	}
+
+	if err := (&webhooks.Cluster{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "Cluster")
 		os.Exit(1)
 	}
 

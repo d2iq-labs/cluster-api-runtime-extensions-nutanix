@@ -48,13 +48,13 @@ func NewServerOptions() *ServerOptions {
 }
 
 func (s *ServerOptions) AddFlags(fs *pflag.FlagSet) {
-	fs.IntVar(&s.webhookPort, "webhook-port", s.webhookPort, "Webhook Server port")
+	fs.IntVar(&s.webhookPort, "runtime-webhook-port", s.webhookPort, "Runtime webhook server port")
 
 	fs.StringVar(
 		&s.webhookCertDir,
-		"webhook-cert-dir",
+		"runtime-webhook-cert-dir",
 		s.webhookCertDir,
-		"Runtime hooks server cert dir.",
+		"Runtime webhook server cert dir",
 	)
 }
 

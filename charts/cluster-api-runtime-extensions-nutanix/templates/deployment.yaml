@@ -28,11 +28,14 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         args:
-        - --webhook-cert-dir=/runtimehooks-certs/
+        - --runtime-webhook-port=9444
+        - --runtime-webhook-cert-dir=/tmp/k8s-webhook-server/serving-certs/
         - --defaults-namespace=$(POD_NAMESPACE)
         - --helm-addons-configmap={{ .Values.helmAddonsConfigMap }}
         - --cni.cilium.helm-addon.default-values-template-configmap-name={{ .Values.hooks.cni.cilium.helmAddonStrategy.defaultValueTemplateConfigMap.name }}
         - --nfd.helm-addon.default-values-template-configmap-name={{ .Values.hooks.nfd.helmAddonStrategy.defaultValueTemplateConfigMap.name }}
+        - --webhook-port=9443
+        - --webhook-cert-dir=/tmp/k8s-webhook-server/serving-certs/
         {{- range $key, $value := .Values.extraArgs }}
         - --{{ $key }}={{ $value }}
         {{- end }}
@@ -43,8 +46,11 @@ spec:
 {{- end }}
 {{- end }}
         ports:
-        - containerPort: 9443
+        - containerPort: 9444
           name: runtimehooks
+          protocol: TCP
+        - containerPort: 9443
+          name: webhook-server
           protocol: TCP
         - containerPort: 8080
           name: metrics
@@ -62,8 +68,8 @@ spec:
           {{- toYaml . | nindent 10 }}
           {{- end }}
         volumeMounts:
-        - mountPath: /runtimehooks-certs
-          name: runtimehooks-cert
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
           readOnly: true
         livenessProbe:
           httpGet:
@@ -81,7 +87,7 @@ spec:
         {{- toYaml . | nindent 8}}
         {{- end }}
       volumes:
-      - name: runtimehooks-cert
+      - name: cert
         secret:
           defaultMode: 420
-          secretName: {{ template "chart.name" . }}-runtimehooks-tls
+          secretName: {{ template "chart.name" . }}-service-cert

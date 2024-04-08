@@ -12,6 +12,7 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/openapi/patterns"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
 )
 
 type StorageProvisioner string
@@ -92,6 +93,14 @@ func (s ClusterConfigSpec) VariableSchema() clusterv1.VariableSchema { //nolint:
 	}
 
 	return clusterConfigProps
+}
+
+func (s *ClusterConfigSpec) ToClusterVariable(name string) (*clusterv1.ClusterVariable, error) {
+	return variables.MarshalToClusterVariable(name, s)
+}
+
+func (s *ClusterConfigSpec) FromClusterVariable(clusterVariable *clusterv1.ClusterVariable) error {
+	return variables.UnmarshalClusterVariable(clusterVariable, s)
 }
 
 // GenericClusterConfig defines the generic cluster configdesired.

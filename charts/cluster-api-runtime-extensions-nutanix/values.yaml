@@ -128,3 +128,9 @@ tolerations:
 
 # -- Priority class to be used for the pod.
 priorityClassName: system-cluster-critical
+
+webhooks:
+  service:
+    annotations: {}
+    type: ClusterIP
+    port: 443
