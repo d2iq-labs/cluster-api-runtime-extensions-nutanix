@@ -84,7 +84,7 @@ func (h *extraAPIServerCertSANsPatchHandler) Mutate(
 		return nil
 	}
 
-	extraSans := deDup(extraAPIServerCertSANsVar, defaultAPICertSANs)
+	extraSans := append(extraAPIServerCertSANsVar, defaultAPICertSANs...)
 
 	log = log.WithValues(
 		"variableName",
@@ -123,23 +123,4 @@ func getDefaultAPIServerSANs(cluster *capiv1.Cluster) []string {
 	default:
 		return []string{}
 	}
-}
-
-func deDup(a, b []string) []string {
-	found := map[string]bool{}
-	for _, s := range a {
-		if _, ok := found[s]; !ok {
-			found[s] = true
-		}
-	}
-	for _, s := range b {
-		if _, ok := found[s]; !ok {
-			found[s] = true
-		}
-	}
-	ret := make([]string, 0, len(found))
-	for k := range found {
-		ret = append(ret, k)
-	}
-	return ret
 }
