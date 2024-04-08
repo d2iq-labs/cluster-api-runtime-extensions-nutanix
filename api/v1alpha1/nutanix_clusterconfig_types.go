@@ -7,6 +7,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/openapi/patterns"
 )
 
 const (
@@ -65,7 +67,7 @@ func (NutanixPrismCentralEndpointSpec) VariableSchema() clusterv1.VariableSchema
 					Type:        "string",
 					MinLength:   ptr.To[int64](1),
 					Format:      "uri",
-					Pattern:     "^https://",
+					Pattern:     patterns.HTTPSURL(),
 				},
 				"insecure": {
 					Description: "Use insecure connection to Prism Central endpoint",
