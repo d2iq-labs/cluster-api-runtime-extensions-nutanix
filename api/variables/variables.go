@@ -1,3 +1,6 @@
+// Copyright 2023 D2iQ, Inc. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package variables
 
 import (
@@ -16,6 +19,7 @@ func UnmarshalRuntimeVariable[T any](runtimeVariable *runtimehooksv1.Variable, o
 	return nil
 }
 
+//nolint:gocritic // no need for named results
 func GetRuntimhookVariableByName(
 	name string,
 	variables []runtimehooksv1.Variable,
