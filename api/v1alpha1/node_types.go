@@ -10,14 +10,14 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NodeConfig is the Schema for the workerconfigs API.
 type NodeConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	//+optional
+	// +optional
 	Spec NodeConfigSpec `json:"spec,omitempty"`
 }
 
@@ -63,9 +63,9 @@ func (s NodeConfigSpec) VariableSchema() clusterv1.VariableSchema {
 	return nodeConfigProps
 }
 
-func DefaultAWSWorkerConfigSpec() *NodeConfigSpec {
+func NewAWSWorkerConfigSpec() *NodeConfigSpec {
 	return &NodeConfigSpec{
-		AWS: AWSWorkerNodeSpec(),
+		AWS: NewAWSWorkerNodeSpec(),
 	}
 }
 

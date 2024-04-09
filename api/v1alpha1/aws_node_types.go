@@ -4,15 +4,16 @@
 package v1alpha1
 
 import (
-	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/utils/ptr"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
 )
 
 const (
 	AWSControlPlaneInstanceType InstanceType = "m5.xlarge"
-	AWSWorkerInstanceType       InstanceType = "m5.xlarge"
+	AWSWorkerInstanceType       InstanceType = "m5.2xlarge"
 )
 
 type AWSNodeSpec struct {
@@ -24,10 +25,10 @@ type AWSNodeSpec struct {
 
 	// AMI or AMI Lookup arguments for machine image of a AWS machine.
 	// If both AMI ID and AMI lookup arguments are provided then AMI ID takes precedence
-	//+optional
+	// +optional
 	AMISpec *AMISpec `json:"ami,omitempty"`
 
-	//+optional
+	// +optional
 	AdditionalSecurityGroups AdditionalSecurityGroup `json:"additionalSecurityGroups,omitempty"`
 }
 
@@ -57,18 +58,13 @@ func (AdditionalSecurityGroup) VariableSchema() clusterv1.VariableSchema {
 }
 
 func (a AWSNodeSpec) VariableSchema() clusterv1.VariableSchema {
-	instanceType := InstanceType("")
-	if a.InstanceType != nil {
-		instanceType = *a.InstanceType
-	}
-
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
 			Description: "AWS Node configuration",
 			Type:        "object",
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"iamInstanceProfile":       IAMInstanceProfile("").VariableSchema().OpenAPIV3Schema,
-				"instanceType":             instanceType.VariableSchema().OpenAPIV3Schema,
+				"instanceType":             a.InstanceType.VariableSchema().OpenAPIV3Schema,
 				"ami":                      AMISpec{}.VariableSchema().OpenAPIV3Schema,
 				"additionalSecurityGroups": AdditionalSecurityGroup{}.VariableSchema().OpenAPIV3Schema,
 			},
@@ -76,13 +72,13 @@ func (a AWSNodeSpec) VariableSchema() clusterv1.VariableSchema {
 	}
 }
 
-func AWSControlPlaneNodeSpec() *AWSNodeSpec {
+func NewAWSControlPlaneNodeSpec() *AWSNodeSpec {
 	return &AWSNodeSpec{
 		InstanceType: ptr.To(AWSControlPlaneInstanceType),
 	}
 }
 
-func AWSWorkerNodeSpec() *AWSNodeSpec {
+func NewAWSWorkerNodeSpec() *AWSNodeSpec {
 	return &AWSNodeSpec{
 		InstanceType: ptr.To(AWSWorkerInstanceType),
 	}
@@ -107,18 +103,6 @@ func (i InstanceType) VariableSchema() clusterv1.VariableSchema {
 			Type:        "string",
 			Description: "The AWS instance type to use for the cluster Machines",
 			Default:     variables.MustMarshal(string(i)),
-		},
-	}
-}
-
-type ControlPlaneInstanceType string
-
-func (ControlPlaneInstanceType) VariableSchema() clusterv1.VariableSchema {
-	return clusterv1.VariableSchema{
-		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
-			Type:        "string",
-			Description: "The AWS instance type to use for the cluster Machines",
-			Default:     variables.MustMarshal("m5.xlarge"),
 		},
 	}
 }

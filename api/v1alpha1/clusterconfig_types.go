@@ -56,9 +56,6 @@ type ClusterConfigSpec struct {
 
 func (s ClusterConfigSpec) VariableSchema() clusterv1.VariableSchema { //nolint:gocritic,lll // Passed by value for no potential side-effect.
 	clusterConfigProps := GenericClusterConfig{}.VariableSchema()
-	if s.ControlPlane == nil {
-		s.ControlPlane = &NodeConfigSpec{}
-	}
 	switch {
 	case s.AWS != nil:
 		maps.Copy(
@@ -93,11 +90,11 @@ func (s ClusterConfigSpec) VariableSchema() clusterv1.VariableSchema { //nolint:
 	return clusterConfigProps
 }
 
-func DefaultAWSClusterConfigSpec() *ClusterConfigSpec {
+func NewAWSClusterConfigSpec() *ClusterConfigSpec {
 	return &ClusterConfigSpec{
 		AWS: &AWSSpec{},
 		ControlPlane: &NodeConfigSpec{
-			AWS: AWSControlPlaneNodeSpec(),
+			AWS: NewAWSControlPlaneNodeSpec(),
 		},
 	}
 }
