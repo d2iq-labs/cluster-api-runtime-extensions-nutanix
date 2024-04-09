@@ -98,7 +98,10 @@ var _ = Describe("Generate Nutanix Prism Central Endpoint patches", func() {
 							"address",
 							gomega.BeEquivalentTo("prism-central.nutanix.com"),
 						),
-						gomega.HaveKeyWithValue("port", gomega.BeEquivalentTo(v1alpha1.DefaultPrismCentralPort)),
+						gomega.HaveKeyWithValue(
+							"port",
+							gomega.BeEquivalentTo(v1alpha1.DefaultPrismCentralPort),
+						),
 						gomega.HaveKeyWithValue("insecure", true),
 						gomega.HaveKey("credentialRef"),
 						gomega.Not(gomega.HaveKey("additionalTrustBundle")),

@@ -29,7 +29,10 @@ func TestVariableValidation(t *testing.T) {
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						URL:      fmt.Sprintf("https://prism-central.nutanix.com:%d", v1alpha1.DefaultPrismCentralPort),
+						URL: fmt.Sprintf(
+							"https://prism-central.nutanix.com:%d",
+							v1alpha1.DefaultPrismCentralPort,
+						),
 						Insecure: false,
 						Credentials: corev1.LocalObjectReference{
 							Name: "credentials",
@@ -48,7 +51,10 @@ func TestVariableValidation(t *testing.T) {
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						URL:      fmt.Sprintf("https://10.0.0.1:%d", v1alpha1.DefaultPrismCentralPort),
+						URL: fmt.Sprintf(
+							"https://10.0.0.1:%d",
+							v1alpha1.DefaultPrismCentralPort,
+						),
 						Insecure: false,
 						Credentials: corev1.LocalObjectReference{
 							Name: "credentials",
@@ -145,7 +151,10 @@ func TestVariableValidation(t *testing.T) {
 			Vals: v1alpha1.ClusterConfigSpec{
 				Nutanix: &v1alpha1.NutanixSpec{
 					PrismCentralEndpoint: v1alpha1.NutanixPrismCentralEndpointSpec{
-						URL:      fmt.Sprintf("https://prism-central.nutanix.com:%d", v1alpha1.DefaultPrismCentralPort),
+						URL: fmt.Sprintf(
+							"https://prism-central.nutanix.com:%d",
+							v1alpha1.DefaultPrismCentralPort,
+						),
 						Insecure: false,
 					},
 					// ControlPlaneEndpoint is a required field and must always be set

@@ -17,7 +17,10 @@ import (
 	nutanixclusterconfig "github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/pkg/handlers/nutanix/clusterconfig"
 )
 
-var testPrismCentralURL = fmt.Sprintf("https://prism-central.nutanix.com:%d", v1alpha1.DefaultPrismCentralPort)
+var testPrismCentralURL = fmt.Sprintf(
+	"https://prism-central.nutanix.com:%d",
+	v1alpha1.DefaultPrismCentralPort,
+)
 
 func TestVariableValidation(t *testing.T) {
 	capitest.ValidateDiscoverVariables(
