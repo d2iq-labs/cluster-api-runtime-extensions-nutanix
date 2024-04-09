@@ -18,7 +18,7 @@ func TestVariableValidation(t *testing.T) {
 	capitest.ValidateDiscoverVariables(
 		t,
 		clusterconfig.MetaVariableName,
-		ptr.To(v1alpha1.DefaultAWSClusterConfigSpec().VariableSchema()),
+		ptr.To(v1alpha1.NewAWSClusterConfigSpec().VariableSchema()),
 		true,
 		awsclusterconfig.NewVariable,
 		capitest.VariableTestDef{

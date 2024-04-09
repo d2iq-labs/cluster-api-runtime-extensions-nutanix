@@ -63,9 +63,9 @@ func (s NodeConfigSpec) VariableSchema() clusterv1.VariableSchema {
 	return nodeConfigProps
 }
 
-func DefaultAWSWorkerConfigSpec() *NodeConfigSpec {
+func NewAWSWorkerConfigSpec() *NodeConfigSpec {
 	return &NodeConfigSpec{
-		AWS: AWSWorkerNodeSpec(),
+		AWS: NewAWSWorkerNodeSpec(),
 	}
 }
 
