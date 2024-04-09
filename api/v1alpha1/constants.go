@@ -12,6 +12,8 @@ const (
 	ClusterAutoscalerVariableName = "clusterAutoscaler"
 	// AWSVariableName is the AWS config patch variable name.
 	AWSVariableName = "aws"
+	// DockerVariableName is the Docker config patch variable name.
+	DockerVariableName = "aws"
 	// NutanixVariableName is the Nutanix config patch variable name.
 	NutanixVariableName = "nutanix"
 )

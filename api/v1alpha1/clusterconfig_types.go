@@ -12,6 +12,7 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/openapi/patterns"
+	"github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/api/variables"
 )
 
 type StorageProvisioner string
@@ -27,6 +28,13 @@ const (
 
 	CCMProviderAWS = "aws"
 )
+
+var DefaultDockerCertSANs = []string{
+	"localhost",
+	"127.0.0.1",
+	"0.0.0.0",
+	"host.docker.internal",
+}
 
 // +kubebuilder:object:root=true
 
@@ -55,7 +63,7 @@ type ClusterConfigSpec struct {
 }
 
 func (s ClusterConfigSpec) VariableSchema() clusterv1.VariableSchema { //nolint:gocritic,lll // Passed by value for no potential side-effect.
-	clusterConfigProps := GenericClusterConfig{}.VariableSchema()
+	clusterConfigProps := s.GenericClusterConfig.VariableSchema()
 	switch {
 	case s.AWS != nil:
 		maps.Copy(
@@ -69,7 +77,7 @@ func (s ClusterConfigSpec) VariableSchema() clusterv1.VariableSchema { //nolint:
 		maps.Copy(
 			clusterConfigProps.OpenAPIV3Schema.Properties,
 			map[string]clusterv1.JSONSchemaProps{
-				"docker": DockerSpec{}.VariableSchema().OpenAPIV3Schema,
+				DockerVariableName: s.Docker.VariableSchema().OpenAPIV3Schema,
 				"controlPlane": NodeConfigSpec{
 					Docker: &DockerNodeSpec{},
 				}.VariableSchema().OpenAPIV3Schema,
@@ -95,6 +103,15 @@ func NewAWSClusterConfigSpec() *ClusterConfigSpec {
 		AWS: &AWSSpec{},
 		ControlPlane: &NodeConfigSpec{
 			AWS: NewAWSControlPlaneNodeSpec(),
+		},
+	}
+}
+
+func NewDockerClusterConfigSpec() *ClusterConfigSpec {
+	return &ClusterConfigSpec{
+		Docker: &DockerSpec{},
+		GenericClusterConfig: GenericClusterConfig{
+			ExtraAPIServerCertSANs: DefaultDockerCertSANs,
 		},
 	}
 }
@@ -134,7 +151,7 @@ func (s GenericClusterConfig) VariableSchema() clusterv1.VariableSchema { //noli
 			Properties: map[string]clusterv1.JSONSchemaProps{
 				"addons":                 Addons{}.VariableSchema().OpenAPIV3Schema,
 				"etcd":                   Etcd{}.VariableSchema().OpenAPIV3Schema,
-				"extraAPIServerCertSANs": ExtraAPIServerCertSANs{}.VariableSchema().OpenAPIV3Schema,
+				"extraAPIServerCertSANs": s.ExtraAPIServerCertSANs.VariableSchema().OpenAPIV3Schema,
 				"proxy":                  HTTPProxy{}.VariableSchema().OpenAPIV3Schema,
 				"kubernetesImageRepository": KubernetesImageRepository(
 					"",
@@ -258,7 +275,7 @@ func (HTTPProxy) VariableSchema() clusterv1.VariableSchema {
 // ExtraAPIServerCertSANs required for providing API server cert SANs.
 type ExtraAPIServerCertSANs []string
 
-func (ExtraAPIServerCertSANs) VariableSchema() clusterv1.VariableSchema {
+func (s ExtraAPIServerCertSANs) VariableSchema() clusterv1.VariableSchema {
 	return clusterv1.VariableSchema{
 		OpenAPIV3Schema: clusterv1.JSONSchemaProps{
 			Description: "Extra Subject Alternative Names for the API Server signing cert",
@@ -268,6 +285,7 @@ func (ExtraAPIServerCertSANs) VariableSchema() clusterv1.VariableSchema {
 				Type:    "string",
 				Pattern: patterns.Anchored(patterns.DNS1123Subdomain),
 			},
+			Default: variables.MustMarshal(s),
 		},
 	}
 }
