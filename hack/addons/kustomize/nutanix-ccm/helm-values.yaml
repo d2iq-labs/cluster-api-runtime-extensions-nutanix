@@ -1,8 +1,0 @@
-# Copyright 2023 D2iQ, Inc. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-
----
-# The Secret containing the credentials is expected to already exist.
-createSecret: false
-# The ConfigMap containing the PC details will be created by the handler.
-createConfig: false

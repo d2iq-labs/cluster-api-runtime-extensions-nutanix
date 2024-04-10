@@ -18,7 +18,7 @@ export AWS_CCM_CHART_VERSION_128 := 0.0.8
 export NUTANIX_CCM_CHART_VERSION := 0.3.3
 
 .PHONY: addons.sync
-addons.sync: $(addprefix update-addon.,calico cilium nfd cluster-autoscaler aws-ebs-csi aws-ccm.127 nutanix-storage-csi aws-ccm.128 nutanix-ccm)
+addons.sync: $(addprefix update-addon.,calico cilium nfd cluster-autoscaler aws-ebs-csi aws-ccm.127 nutanix-storage-csi aws-ccm.128)
 
 .PHONY: update-addon.calico
 update-addon.calico: ; $(info $(M) updating calico manifests)
@@ -47,10 +47,6 @@ update-addon.aws-ccm.%: ; $(info $(M) updating aws ccm $* manifests)
 .PHONY: update-addon.nutanix-storage-csi
 update-addon.nutanix-storage-csi: ; $(info $(M) updating nutanix-storage csi manifests)
 	./hack/addons/update-nutanix-csi.sh
-
-.PHONY: update-addon.nutanix-ccm
-update-addon.nutanix-ccm: ; $(info $(M) updating nutanix ccm $* manifests)
-	./hack/addons/update-nutanix-ccm.sh
 
 .PHONY: generate-helm-configmap
 generate-helm-configmap:
