@@ -100,7 +100,7 @@ func (c *CCMHandler) AfterControlPlaneInitialized(
 		)
 		resp.SetStatus(runtimehooksv1.ResponseStatusFailure)
 		resp.SetMessage(
-			fmt.Sprintf("ffailed to read clusterConfig variable from cluster definition: %v",
+			fmt.Sprintf("failed to read clusterConfig variable from cluster definition: %v",
 				err,
 			),
 		)
