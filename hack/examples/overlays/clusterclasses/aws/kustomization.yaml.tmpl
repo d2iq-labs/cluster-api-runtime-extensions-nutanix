@@ -59,3 +59,15 @@ patches:
       - op: "add"
         path: "/spec/template/spec/instanceType"
         value: "PLACEHOLDER"
+  - target:
+        kind: AWSMachineTemplate
+        name: quick-start-control-plane
+    patch: |-
+      - op: "remove"
+        path: "/spec/template/spec/iamInstanceProfile"
+  - target:
+      kind: AWSMachineTemplate
+      name: quick-start-worker-machinetemplate
+    patch: |-
+      - op: "remove"
+        path: "/spec/template/spec/iamInstanceProfile"
