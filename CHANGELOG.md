@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0 (2024-04-11)
+
+<!-- Release notes generated using configuration in .github/release.yaml at main -->
+
+
+
+**Full Changelog**: https://github.com/d2iq-labs/cluster-api-runtime-extensions-nutanix/compare/v0.6.0...v0.7.0
+
 ## 0.6.0 (2024-03-19)
 
 <!-- Release notes generated using configuration in .github/release.yaml at main -->
